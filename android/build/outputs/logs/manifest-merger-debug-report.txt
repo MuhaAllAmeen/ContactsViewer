@@ -1,0 +1,117 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:2:1-48:12
+INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:2:1-48:12
+INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:2:1-48:12
+INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:2:1-48:12
+INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:2:1-48:12
+INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:2:1-48:12
+INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:2:1-48:12
+	package
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:3:5-38
+		INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+		INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+	android:versionName
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:6:5-30
+		INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+		INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:2:11-69
+	android:versionCode
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:5:5-28
+		INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+		INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+	android:installLocation
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:4:5-35
+uses-permission#android.permission.INTERNET
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:7:5-67
+	android:name
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:7:22-64
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:8:5-81
+	android:name
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:8:22-78
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:9:5-79
+	android:name
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:9:22-76
+supports-screens
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:11:5-15:39
+	android:largeScreens
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:13:9-36
+	android:smallScreens
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:15:9-36
+	android:normalScreens
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:14:9-37
+	android:anyDensity
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:12:9-34
+application
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:16:5-47:19
+	android:requestLegacyExternalStorage
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:19:9-52
+	android:label
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:18:9-36
+	android:hardwareAccelerated
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:17:9-43
+	android:allowBackup
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:21:9-35
+	android:allowNativeHeapPointerTagging
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:20:9-54
+	android:fullBackupOnly
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:22:9-39
+activity#com.example.appContacts.MainActivity
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:23:9-46:20
+	android:screenOrientation
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:28:13-52
+	android:label
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:26:13-40
+	android:launchMode
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:27:13-43
+	android:exported
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:29:13-36
+	android:configChanges
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:25:13-182
+	android:name
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:24:13-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:30:13-33:29
+action#android.intent.action.MAIN
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:31:17-69
+	android:name
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:31:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:32:17-77
+	android:name
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:32:27-74
+meta-data#android.app.lib_name
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:35:11-37:47
+	android:value
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:37:17-44
+	android:name
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:36:17-52
+meta-data#android.app.arguments
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:39:11-41:36
+	android:value
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:41:17-33
+	android:name
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:40:17-53
+meta-data#android.app.extract_android_style
+ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:43:13-45:43
+	android:value
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:45:17-40
+	android:name
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml:44:17-65
+uses-sdk
+INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+		INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+		ADDED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml
+		INJECTED from /Users/muhammedalameen/Projects/Contacts/android/AndroidManifest.xml

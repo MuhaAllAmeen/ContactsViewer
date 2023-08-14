@@ -1,0 +1,9 @@
+com.example.appContacts-pngs-0 /Users/muhammedalameen/Projects/Contacts/android/build/generated/res/pngs/debug
+com.example.appContacts-resValues-1 /Users/muhammedalameen/Projects/Contacts/android/build/generated/res/resValues/debug
+com.example.appContacts-rs-2 /Users/muhammedalameen/Projects/Contacts/android/build/generated/res/rs/debug
+com.example.appContacts-mergeDebugResources-3 /Users/muhammedalameen/Projects/Contacts/android/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
+com.example.appContacts-mergeDebugResources-4 /Users/muhammedalameen/Projects/Contacts/android/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
+com.example.appContacts-merged_res-5 /Users/muhammedalameen/Projects/Contacts/android/build/intermediates/merged_res/debug
+com.example.appContacts-android-6 /Users/muhammedalameen/Projects/Contacts/android/res
+com.example.appContacts-debug-7 /Users/muhammedalameen/Projects/Contacts/android/src/debug/res
+com.example.appContacts-java-8 /Users/muhammedalameen/Qt/Android_6.5/src/android/java/res

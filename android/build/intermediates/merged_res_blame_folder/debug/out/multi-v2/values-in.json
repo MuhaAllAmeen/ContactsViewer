@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.appContacts-mergeDebugResources-3:/values-in/values-in.xml",
+            "map": [
+                {
+                    "source": "/Users/muhammedalameen/Qt/Android_6.5/src/android/java/res/values-in/strings.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,168",
+                        "endColumns": "112,89",
+                        "endOffsets": "163,253"
+                    }
+                }
+            ]
+        }
+    ]
+}

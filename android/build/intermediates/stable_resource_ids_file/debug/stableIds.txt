@@ -1,0 +1,9 @@
+com.example.appContacts:string/static_init_classes = 0x7f020002
+com.example.appContacts:string/fatal_error_msg = 0x7f020001
+com.example.appContacts:string/use_local_qt_libs = 0x7f020005
+com.example.appContacts:string/bundle_local_qt_libs = 0x7f020000
+com.example.appContacts:array/qt_libs = 0x7f010002
+com.example.appContacts:string/unsupported_android_version = 0x7f020004
+com.example.appContacts:string/system_libs_prefix = 0x7f020003
+com.example.appContacts:array/load_local_libs = 0x7f010001
+com.example.appContacts:array/bundled_libs = 0x7f010000

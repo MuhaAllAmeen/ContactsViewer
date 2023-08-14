@@ -1,0 +1,45 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.appContacts-mergeDebugResources-3:/values/values.xml",
+            "map": [
+                {
+                    "source": "/Users/muhammedalameen/Projects/Contacts/android/res/values/libs.xml",
+                    "from": {
+                        "startLines": "4,21,8,27,25,28,26",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "148,734,203,958,861,1009,910",
+                        "endLines": "6,23,19,27,25,28,26",
+                        "endColumns": "12,12,12,50,48,47,47",
+                        "endOffsets": "197,855,728,1004,905,1052,953"
+                    },
+                    "to": {
+                        "startLines": "2,5,8,20,22,23,25",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "55,109,235,765,924,965,1103",
+                        "endLines": "4,7,19,20,22,23,25",
+                        "endColumns": "12,12,12,50,40,39,47",
+                        "endOffsets": "104,230,760,811,960,1000,1146"
+                    }
+                },
+                {
+                    "source": "/Users/muhammedalameen/Qt/Android_6.5/src/android/java/res/values/strings.xml",
+                    "from": {
+                        "startLines": "3,4",
+                        "startColumns": "4,4",
+                        "startOffsets": "85,193",
+                        "endColumns": "107,97",
+                        "endOffsets": "188,286"
+                    },
+                    "to": {
+                        "startLines": "21,24",
+                        "startColumns": "4,4",
+                        "startOffsets": "816,1005",
+                        "endColumns": "107,97",
+                        "endOffsets": "919,1098"
+                    }
+                }
+            ]
+        }
+    ]
+}
