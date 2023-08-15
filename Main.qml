@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Window
-
+import Contacts 1.0
 Window {
     width: 640
     height: 480
@@ -16,13 +16,18 @@ Window {
     ListView{
         anchors.fill: parent
         id: listView
-        model: contactsModel
+        model: ContactsModel{
+        list : contactsList}
         spacing: 5
         delegate: Rectangle{
             width: parent.width; height: 50; color:"beige"
             Text{
-                anchors.centerIn: parent; text: number
+                anchors.left: parent.left; text: name
             }
+            Text{
+                anchors.right: parent.right; text: number
+            }
+
         }
     }
 }

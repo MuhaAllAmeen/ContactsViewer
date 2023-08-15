@@ -1,31 +1,34 @@
 #ifndef CONTACTSMODEL_H
 #define CONTACTSMODEL_H
 
-#include <QDebug>
-#include <jni.h>
-#include <QJniObject>
-#include <jni.h>
-#include <QDebug>
-
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
-//JNIEXPORT void JNICALL
-//Java_com_example_appContacts_MainActivity_myMethod(JNIEnv *env, jobject, jstring
-//                                                                             jstr) {
-//    const char *cstr = env->GetStringUTFChars(jstr, nullptr);
-//    QString qstr = QString::fromUtf8(cstr);
-//    env->ReleaseStringUTFChars(jstr, cstr);
-//    // Use the QString here
-//    qDebug()<<"ss"<<qstr;
-//}
-//#ifdef __cplusplus
-//}
-//#endif
-class ContactsModel
+#include <QAbstractListModel>
+class ContactsList;
+class ContactsModel : public QAbstractListModel
 {
+    Q_OBJECT
+    Q_PROPERTY(ContactsList *list READ list WRITE setList)
 public:
-    ContactsModel();
+    explicit ContactsModel(QObject *parent = nullptr);
+    enum {
+        nameRole = Qt::UserRole,
+        numberRole
+    };
+    // Basic functionality:
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+    // Editable:
+    bool setData(const QModelIndex &index, const QVariant &value,
+                 int role = Qt::EditRole) override;
+
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
+    virtual QHash<int, QByteArray> roleNames() const override;
+
+    ContactsList *list() const;
+    void setList(ContactsList *list);
+private:
+    ContactsList *mList;
 };
 
 #endif // CONTACTSMODEL_H

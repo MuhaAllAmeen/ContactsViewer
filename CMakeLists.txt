@@ -16,7 +16,9 @@ qt_add_qml_module(appContacts
     URI Contacts
     VERSION 1.0
     QML_FILES Main.qml
+    SOURCES
     SOURCES contactsmodel.cpp contactsmodel.h
+    SOURCES contactslist.h contactslist.cpp
 )
 qt_add_resources(appContacts "android"
     PREFIX /

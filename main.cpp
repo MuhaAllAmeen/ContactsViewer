@@ -1,24 +1,33 @@
-#include "contactsmodel.h"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QJniObject>
 #include <jni.h>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QQmlContext>
+#include "contactsmodel.h"
+#include "contactslist.h"
 #define JNIIMPORT
 #define JNIEXPORT  __attribute__ ((visibility ("default")))
 #define JNICALL
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-JNIEXPORT void JNICALL
-Java_com_example_appContacts_MainActivity_myMethod(JNIEnv *env, jobject obj, jstring
+JNIEXPORT jstring JNICALL
+Java_com_example_appContacts_MainActivity_myMethod2(JNIEnv *env, jobject obj, jstring
                                                                           jstr) {
+    JavaVM *jvm;
+    env->GetJavaVM(&jvm);
     qDebug() << "JNI method called";
     const char *cstr = env->GetStringUTFChars(jstr, nullptr);
     QString qstr = QString::fromUtf8(cstr);
     env->ReleaseStringUTFChars(jstr, cstr);
     // Use the QString here
     qDebug()<<"ss"<<qstr;
+    return env->NewStringUTF("Hello World! From native code!");
 }
 #ifdef __cplusplus
 }
@@ -26,21 +35,23 @@ Java_com_example_appContacts_MainActivity_myMethod(JNIEnv *env, jobject obj, jst
 
 int main(int argc, char *argv[])
 {
+    qmlRegisterType<ContactsModel>("Contacts",1,0,"ContactsModel");
+
     QGuiApplication app(argc, argv);
-
     QQmlApplicationEngine engine;
+    ContactsList contactsList;
+    engine.rootContext()->setContextProperty(QStringLiteral("contactsList"),&contactsList);
+    qmlRegisterUncreatableType<ContactsList>("Contacts",1,0,"ContactsList",
+                                             QStringLiteral("Contacts List Should not be created in Qml"));
     QJniObject javaClass = QNativeInterface::QAndroidApplication::context();
-    jint sumOfNums = javaClass.callMethod<jint>("sumOfNumbers","(II)I",5, 5);
+    QJniEnvironment env;
 
-    JNIEXPORT void JNICALL
-    Java_com_example_appContacts_MainActivity_myMethod(JNIEnv *env, jobject obj, jstring
-                                                                                      jstr);
-    QJniObject arrayList = javaClass.callObjectMethod("loadContacts","()Ljava/util/ArrayList;");
-    qDebug()<<"hh"<<arrayList.toString();
-    for (int i=0; i<4;i++){
+//    QJniObject arrayList = javaClass.callObjectMethod("loadContacts","()Ljava/util/ArrayList;");
+//    qDebug()<<"hh"<<arrayList.toString();
 
-    }
-    qDebug()<<sumOfNums;
+
+
+
 //    JNIEXPORT void JNICALL
 //    Java_com_example_appContacts_MainActivity_myMethod(JNIEnv *env, jobject, jstring
 //                                                                            jstr);

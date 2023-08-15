@@ -1,5 +1,8 @@
 package com.example.appContacts;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.qtproject.qt.android.bindings.QtActivity;
 
 import android.Manifest;
@@ -16,9 +19,15 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
+
 import java.util.ArrayList;
 
+
 public class MainActivity extends QtActivity {
+
     ArrayList<ContactsModel> arrayList = new ArrayList<ContactsModel>();
     ArrayList<String> nameList = new ArrayList<String>();
     public void onCreate(Bundle savedInstanceState) {
@@ -27,17 +36,20 @@ public class MainActivity extends QtActivity {
         checkPermission();
     }
 
-    public void checkPermission() {
+    public String checkPermission() {
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_CONTACTS)
         != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(MainActivity.this
             ,new String[]{Manifest.permission.READ_CONTACTS},100);
+            return "Permission Denied";
         } else {
-            loadContacts();
+            return "Permission Granted";
+//            loadContacts();
         }
     }
 
-    public ArrayList<ContactsModel> loadContacts(){
+    public String loadContacts(){
+        int j =5;
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,null,null,ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
         if (cursor.getCount()>0){
             while(cursor.moveToNext()){
@@ -67,16 +79,23 @@ public class MainActivity extends QtActivity {
         }
 //        Log.d("arrayList", String.valueOf(arrayList.size()));
         cursor.close();
-        return arrayList;
+        Gson gson = new Gson();
+        String json = gson.toJson(arrayList);
+//        Log.d("json",json);
+//        return arrayList;
 //        return nameList;
+        return json;
     }
 
     public int sumOfNumbers(int a, int b){
         return a+b;
     }
-    public String myMethod(String names){
+    public static String myMethod(String names){
         Log.d("Java","called");
         return names;
+    }
+    public static void checkMyMethod(String names){
+        myMethod2(myMethod(names));
     }
     public static native void myMethod2(String names);
 
