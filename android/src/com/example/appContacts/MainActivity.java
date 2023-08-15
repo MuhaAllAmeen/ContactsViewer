@@ -55,7 +55,7 @@ public class MainActivity extends QtActivity {
             while(cursor.moveToNext()){
                 @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                 @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                Log.d("name",name);
+//                Log.d("name",name);
                 nameList.add(name);
                 Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
                 String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?";
@@ -64,7 +64,7 @@ public class MainActivity extends QtActivity {
                     @SuppressLint("Range") String number = phoneCursor.getString(phoneCursor.getColumnIndex(
                             ContactsContract.CommonDataKinds.Phone.NUMBER
                     ));
-                    Log.d("number",number);
+//                    Log.d("number",number);
                     ContactsModel model = new ContactsModel();
                     model.setName(name);
                     model.setNumber(number);
@@ -73,10 +73,10 @@ public class MainActivity extends QtActivity {
                 phoneCursor.close();
             }
         }
-        for (int i=0; i<arrayList.size();i++){
-            Log.d("arrayLits", String.valueOf(arrayList.get(i).name));
-            Log.d("num",Integer.toString(i));
-        }
+//        for (int i=0; i<arrayList.size();i++){
+//            Log.d("arrayLits", String.valueOf(arrayList.get(i).name));
+//            Log.d("num",Integer.toString(i));
+//        }
 //        Log.d("arrayList", String.valueOf(arrayList.size()));
         cursor.close();
         Gson gson = new Gson();

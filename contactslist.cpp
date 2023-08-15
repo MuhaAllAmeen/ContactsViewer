@@ -20,12 +20,11 @@ ContactsList::ContactsList(QObject *parent)
         //        qDebug()<<"json"<<contacts.toString();
         QString jsonStr = contacts.toString();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
-        jobject contactObj = contacts.object<jobject>();
         QJsonArray jsonArray = jsonDoc.array();
         foreach (const QJsonValue & value, jsonArray) {
             QString name = value["name"].toString();
             QString number = value["number"].toString();
-            qDebug()<<name<<number;
+//            qDebug()<<name<<number;
             mContact.append({name,number});
         }
     }

@@ -43,18 +43,9 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("contactsList"),&contactsList);
     qmlRegisterUncreatableType<ContactsList>("Contacts",1,0,"ContactsList",
                                              QStringLiteral("Contacts List Should not be created in Qml"));
-    QJniObject javaClass = QNativeInterface::QAndroidApplication::context();
     QJniEnvironment env;
-
 //    QJniObject arrayList = javaClass.callObjectMethod("loadContacts","()Ljava/util/ArrayList;");
 //    qDebug()<<"hh"<<arrayList.toString();
-
-
-
-
-//    JNIEXPORT void JNICALL
-//    Java_com_example_appContacts_MainActivity_myMethod(JNIEnv *env, jobject, jstring
-//                                                                            jstr);
     const QUrl url(u"qrc:/Contacts/Main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
         &app, []() { QCoreApplication::exit(-1); },
