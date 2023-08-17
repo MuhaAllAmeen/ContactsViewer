@@ -6,16 +6,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.google.gson.Gson;
@@ -23,6 +19,7 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends QtActivity {
+    ArrayList<ContactsModel> arrayList = new ArrayList<ContactsModel>();
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +40,7 @@ public class MainActivity extends QtActivity {
     }
 
     public String loadContacts(){
-        ArrayList<ContactsModel> arrayList = new ArrayList<ContactsModel>();
+        arrayList.clear();
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,null,null,ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
         if (cursor.getCount()>0){
             while(cursor.moveToNext()){
@@ -75,7 +72,6 @@ public class MainActivity extends QtActivity {
 //        return arrayList;
 //        return nameList;
 //        myMethod2(json);
-//        thread();
         return json;
     }
 
