@@ -3,6 +3,7 @@
 ContactsModel::ContactsModel(QObject *parent)
     : QAbstractListModel(parent), mList(nullptr)
 {
+
 }
 
 int ContactsModel::rowCount(const QModelIndex &parent) const
@@ -48,7 +49,6 @@ bool ContactsModel::setData(const QModelIndex &index, const QVariant &value, int
         break;
     }
     if (mList->setItemAt(index.row(),contact)) {
-        // FIXME: Implement me!
         emit dataChanged(index, index, {role});
         return true;
     }
@@ -60,7 +60,7 @@ Qt::ItemFlags ContactsModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::NoItemFlags;
 
-    return Qt::ItemIsEditable; // FIXME: Implement me!
+    return Qt::ItemIsEditable;
 }
 
 QHash<int, QByteArray> ContactsModel::roleNames() const
@@ -78,7 +78,7 @@ ContactsList *ContactsModel::list() const
 
 void ContactsModel::setList(ContactsList *list)
 {
-    beginResetModel () ;
+    beginResetModel() ;
     if (mList)
         mList->disconnect(this);
     mList = list;
@@ -90,7 +90,12 @@ void ContactsModel::setList(ContactsList *list)
         connect (mList, &ContactsList::postItemAppended, this, [=]() {
             endInsertRows();
         });
-    }
+        connect(mList, &ContactsList::preItemRemoved, this, [=](int index) {
+            beginRemoveRows(QModelIndex(), index, rowCount());
+        });
+        connect(mList, &ContactsList::postItemRemoved, this, [=]() {
+            endRemoveRows();
+        });
     endResetModel();
-
+    }
 }

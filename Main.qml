@@ -7,12 +7,7 @@ Window {
     visible: true
     id:root
     color:"#C8B6A6"
-    ListModel{
-        id:contactsModel
-        ListElement{
-            name:"john"; number:"0556768888"
-        }
-    }
+
     Rectangle{
         id: contactsHeading
         anchors.top: parent.top
@@ -23,34 +18,27 @@ Window {
         }
     }
 
+
     ListView{
+        id: listView
         anchors{top: contactsHeading.bottom; topMargin: 20; bottom: parent.bottom}
         width: parent.width; height: parent.height-contactsHeading.height
         clip: true
-//        anchors.fill: parent
-        id: listView
-        model: ContactsModel{
-        list : contactsList}
-        spacing: 5
+        model: ContactsModel {
+            id:contactsModel
+            list : contactsList }
+        spacing: 5      
         delegate: Rectangle{
             id: contactRect
-            width: root.width; height: 80; color:"#F1DEC9"
-            state: "shrinked"
-            PropertyAnimation{
-                id:contactRectHeight
-                running: false
-                target: contactRect
-                property: "height"
-                to: 200
-                duration: 1000
-            }
-
+            /*width: root.width; height:80;*/ color:"#F1DEC9"
+            state:  "shrinked"
             Rectangle{
                 id: nameIcon
 //                anchors{left:parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter}
                 anchors.leftMargin: 5
                 width: 50; height: 50; radius: 30; color: "#C8B6A6"
                 Text{
+                    id: nameFirstLetter
                     anchors.centerIn: parent; text: name[0]; color: "white"
                     font.pixelSize: 20
                 }
@@ -69,12 +57,12 @@ Window {
                 text: number; font.pixelSize:17; color:"#8D7B68"
             }
             states:[
-                State{
+                State{                   
                     name:"expanded"
+//                    when: contactRect.ListView.isCurrentItem
                     PropertyChanges {
                         target: contactRect
-                        height: 200
-                        width: root.width
+                        height: 200; width: root.width
                     }
                     PropertyChanges{
                         target: nameLabel
@@ -86,116 +74,97 @@ Window {
                         font.pixelSize: 25
                         anchors.bottomMargin: 5
                     }
+                    PropertyChanges {
+                        target: nameFirstLetter
+                        font.pixelSize: 40
+                    }
                     PropertyChanges{
                         target:nameIcon
-                        height:90
-                        width:90
-                        radius:90
+                        height:90; width:90; radius:90
                         anchors.topMargin: 10
                     }
                     AnchorChanges{
                         target: nameLabel
-                        anchors{/*verticalCenter: contactRect.verticalCenter;*/ bottom: numberLabel.top; /*bottomMargin:10;*/ horizontalCenter: contactRect.horizontalCenter /*leftMargin:10*/ }
+                        anchors{bottom: numberLabel.top; horizontalCenter: contactRect.horizontalCenter }
 
                     }
                     AnchorChanges{
                         target: numberLabel
-                        anchors{bottom: contactRect.bottom; /*bottomMargin:10;*/ horizontalCenter: contactRect.horizontalCenter /*rightMargin:10*/}
+                        anchors{bottom: contactRect.bottom; horizontalCenter: contactRect.horizontalCenter}
                     }
                     AnchorChanges{
                         target:nameIcon
-                        anchors{top:contactRect.top; /*topMargin:20;*/ horizontalCenter: contactRect.horizontalCenter}
+                        anchors{top:contactRect.top; horizontalCenter: contactRect.horizontalCenter}
                     }
                 },
                 State{
                     name:"shrinked"
                     PropertyChanges {
                         target: contactRect
-                        height: 80
-                        width: root.width
+                        height: 80; width: root.width
                     }
-//                    PropertyChanges {
-//                        target: numberLabel
-//                        anchors.right: contactRect.right
-
-//                    }
                     AnchorChanges{
                         target: nameIcon
-                        anchors{left:contactRect.left; /*leftMargin: 10;*/ verticalCenter: contactRect.verticalCenter}
+                        anchors{left:contactRect.left; verticalCenter: contactRect.verticalCenter}
                     }
                     AnchorChanges{
                         target: nameLabel
-                        anchors{left:nameIcon.right; verticalCenter: contactRect.verticalCenter; /*leftMargin: 5*/}
+                        anchors{left:nameIcon.right; verticalCenter: contactRect.verticalCenter;}
                     }
                     AnchorChanges{
                         target:numberLabel
-                        anchors{right: contactRect.right; verticalCenter: contactRect.verticalCenter; /*rightMargin: 5*/}
+                        anchors{right: contactRect.right; verticalCenter: contactRect.verticalCenter;}
                     }
                 }
 
             ]
             transitions: [
                 Transition {
-                    from: "shrinked"
-                    to: "expanded"
+                    from: "shrinked"; to: "expanded"
                     PropertyAnimation{
-                        target: contactRect
-//                        property: "height"
-                        properties: "height,width"
-                        duration: 500
-                        easing.type: Easing.InCirc
+                        target: contactRect; properties: "height,width"
+                        duration: 500; easing.type: Easing.InCirc
                     }
                     PropertyAnimation{
-                       targets: [numberLabel,nameLabel]
-                       properties: "font.pixelSize,anchors.bottomMargin"
-                       duration: 1000
-                       easing.type: Easing.OutBack
+                       targets: [numberLabel,nameLabel]; properties: "font.pixelSize,anchors.bottomMargin"
+                       duration: 1000; easing.type: Easing.OutBack
                     }
                     AnchorAnimation{
                         targets: [nameLabel,numberLabel,nameIcon]
-                        duration: 800
-                        easing.type: Easing.InCubic
+                        duration: 800; easing.type: Easing.InCubic
+                    }
+                    PropertyAnimation{
+                        target: nameIcon; properties: "height,width,radius,anchors.topMargin"
+                        duration: 1000; easing.type: Easing.InBack
+                    }
+                    PropertyAnimation{
+                        target: nameFirstLetter; properties: "font.pixelSize"
+                        duration: 1000; easing.type: Easing.InBack
                     }
 
-                    PropertyAnimation{
-                        target: nameIcon
-                        properties: "height,width,radius,anchors.topMargin"
-                        duration: 1000
-                        easing.type: Easing.InBack
-                    }
-//                    AnchorAnimation{
-//                        targets: nameIcon
-//                        duration: 500
-//                    }
                 },
                 Transition {
-                    from: "expanded"
-                    to: "shrinked"
+                    from: "expanded"; to: "shrinked"
                     PropertyAnimation{
-                        target: contactRect
-//                        property: "height"
-                        properties: "height,width"
-                        duration: 500
-                        easing.type: Easing.OutCirc
+                        target: contactRect; properties: "height,width"
+                        duration: 500; easing.type: Easing.OutCirc
                     }
-//                    PropertyAnimation{
-//                        target: numberLabel
-//                        properties: "anchors.right"
-//                        duration: 500
-//                    }
 
                     AnchorAnimation{
                         targets: [nameLabel,numberLabel,nameIcon]
-                        duration: 400
-                        easing.type: Easing.OutCubic
+                        duration: 400; easing.type: Easing.OutCubic
                     }
                 }
             ]
             MouseArea{
+                id:mymouse
                 anchors.fill: parent;
-                onClicked: {/*contactRect.height==80 ? contactRect.height=200 : contactRect.height=80*/
-                    contactRect.state == "shrinked" ? contactRect.state="expanded":contactRect.state="shrinked"
-               /* contactRectHeight.running=true*/}
+                onClicked: {
+                    contactRect.ListView.view.currentIndex = index
+//                    contactRect.ListView.view.current
+                    console.log(/*listView.currentIndex,*/ contactRect.ListView.view.currentIndex)
+                    contactRect.state === "shrinked" ? contactRect.state="expanded":contactRect.state="shrinked"
+               }
             }
 
         }

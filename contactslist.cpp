@@ -7,28 +7,18 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
-
+#include <QTimer>
 
 ContactsList::ContactsList(QObject *parent)
     : QObject{parent}
 {
-    QJniObject javaClass = QNativeInterface::QAndroidApplication::context();
-    QJniObject permissions = javaClass.callObjectMethod("checkPermission","()Ljava/lang/String;");
-    if (permissions.toString()=="Permission Granted"){
-        qDebug()<<"Permission Granted";
-        QJniObject contacts = javaClass.callObjectMethod("loadContacts","()Ljava/lang/String;");
-        //        qDebug()<<"json"<<contacts.toString();
-        QString jsonStr = contacts.toString();
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
-        QJsonArray jsonArray = jsonDoc.array();
-        foreach (const QJsonValue & value, jsonArray) {
-            QString name = value["name"].toString();
-            QString number = value["number"].toString();
-//            qDebug()<<name<<number;
-            mContact.append({name,number});
-        }
-    }
-    mContact.append({QStringLiteral("john"),QStringLiteral("+987654321")});
+    this->checkContacts();
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, [this]() {
+        this->clearItems();
+        this->checkContacts();
+    });
+    timer->start(10000);
 }
 
 QVector<Contact> ContactsList::contacts() const
@@ -49,10 +39,47 @@ bool ContactsList::setItemAt(int index, const Contact &contact)
     return true;
 }
 
-void ContactsList::appendItem()
+void ContactsList::appendItem(Contact contact)
 {
+
     emit preItemAppended();
-    Contact contact;
     mContact.append(contact);
     emit postItemAppended();
+
+}
+
+void ContactsList::clearItems()
+{
+    emit preItemRemoved(0);
+    mContact.clear();
+    emit postItemRemoved();
+}
+
+void  ContactsList::checkContacts()
+{
+    QJniObject javaClass = QNativeInterface::QAndroidApplication::context();
+    QJniObject permissions = javaClass.callObjectMethod("checkPermission","()Ljava/lang/String;");
+    if (permissions.toString()=="Permission Granted"){
+        qDebug()<<"Permission Granted";
+        QJniObject contacts = javaClass.callObjectMethod("loadContacts","()Ljava/lang/String;");
+//                qDebug()<<"json"<<contacts.toString();
+        QString jsonStr = contacts.toString();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
+        QJsonArray jsonArray = jsonDoc.array();
+        foreach (const QJsonValue & value, jsonArray) {
+            QString name = value["name"].toString();
+            QString number = value["number"].toString();
+//                        qDebug()<<name<<number;
+            Contact c;
+            c.name=name;
+            c.number=number;
+            appendItem(c);
+        }
+    }
+
+}
+
+void ContactsList::fetchData()
+{
+     QTimer::singleShot(3000, (QObject*)this, SIGNAL(updateData()));
 }

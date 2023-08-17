@@ -11,6 +11,7 @@ struct Contact{
 class ContactsList : public QObject
 {
     Q_OBJECT
+
 public:
     explicit ContactsList(QObject *parent = nullptr);
     QVector<Contact> contacts() const;
@@ -18,11 +19,14 @@ public:
 signals:
     void preItemAppended();
     void postItemAppended();
-
+    void updateData();
     void preItemRemoved(int index);
     void postItemRemoved();
 public slots:
-    void appendItem();
+    void appendItem(Contact contact);
+    void clearItems();
+    void checkContacts();
+    void fetchData();
 private:
     QVector<Contact> mContact;
 };
