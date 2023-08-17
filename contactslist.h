@@ -19,14 +19,12 @@ public:
 signals:
     void preItemAppended();
     void postItemAppended();
-    void updateData();
     void preItemRemoved(int index);
     void postItemRemoved();
 public slots:
     void appendItem(Contact contact);
     void clearItems();
     void checkContacts();
-    void fetchData();
 private:
     QVector<Contact> mContact;
 };

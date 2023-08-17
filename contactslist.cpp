@@ -76,10 +76,5 @@ void  ContactsList::checkContacts()
             appendItem(c);
         }
     }
-
 }
 
-void ContactsList::fetchData()
-{
-     QTimer::singleShot(3000, (QObject*)this, SIGNAL(updateData()));
-}
