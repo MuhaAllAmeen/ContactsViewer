@@ -70,22 +70,9 @@ public class MainActivity extends QtActivity {
         String json = gson.toJson(arrayList);
 //        Log.d("json",json);
 //        return arrayList;
-//        return nameList;
-//        myMethod2(json);
         return json;
     }
 
-    public int sumOfNumbers(int a, int b){
-        return a+b;
-    }
-    public static String myMethod(String names){
-        Log.d("Java","called");
-        return names;
-    }
-    public static void checkMyMethod(String names){
-        myMethod2(myMethod(names));
-    }
-        public static native void myMethod2(String names);
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
