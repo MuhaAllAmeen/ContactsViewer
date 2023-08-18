@@ -43,7 +43,7 @@ Rectangle{
 
                     SequentialAnimation{
                         AnchorAnimation{
-                            targets: [nameLabel,/*numberLabel,*/nameIcon]
+                            targets: [nameLabel,numberLabel,nameIcon]
                             duration: 800; easing.type: Easing.InCubic
                         }
                         PropertyAnimation{

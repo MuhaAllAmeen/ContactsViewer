@@ -21,6 +21,8 @@ signals:
     void postItemAppended();
     void preItemRemoved(int index);
     void postItemRemoved();
+    void contactsUpdated(const Contact &c);
+    void contactsDeleteBeforeUpdate();
 public slots:
     void appendItem(Contact contact);
     void clearItems();

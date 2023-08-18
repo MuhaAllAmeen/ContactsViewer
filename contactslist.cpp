@@ -9,16 +9,18 @@
 #include <QJsonDocument>
 #include <QTimer>
 
+
+
 ContactsList::ContactsList(QObject *parent)
     : QObject{parent}
 {
     this->checkContacts();
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, [this]() {
-        this->clearItems();
-        this->checkContacts();
-    });
-    timer->start(10000);
+//    QTimer *timer = new QTimer(this);
+//    connect(timer, &QTimer::timeout, [this]() {
+//        this->clearItems();
+//        this->checkContacts();
+//    });
+//    timer->start(10000);
 }
 
 QVector<Contact> ContactsList::contacts() const
@@ -59,11 +61,11 @@ void  ContactsList::checkContacts()
 {
     QJniObject javaClass = QNativeInterface::QAndroidApplication::context();
     QJniObject permissions = javaClass.callObjectMethod("checkPermission","()Ljava/lang/String;");
-    if (permissions.toString()=="Permission Granted"){
+    if (permissions.toString()!="Permission Denied"){
         qDebug()<<"Permission Granted";
-        QJniObject contacts = javaClass.callObjectMethod("loadContacts","()Ljava/lang/String;");
+//        QJniObject contacts = javaClass.callObjectMethod("loadContacts","()Ljava/lang/String;");
 //                qDebug()<<"json"<<contacts.toString();
-        QString jsonStr = contacts.toString();
+        QString jsonStr = permissions.toString();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
         QJsonArray jsonArray = jsonDoc.array();
         foreach (const QJsonValue & value, jsonArray) {
