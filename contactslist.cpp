@@ -57,7 +57,8 @@ void  ContactsList::checkContacts()
     QJniObject permissions = javaClass.callObjectMethod("checkPermission","()Ljava/lang/String;");
     if (permissions.toString()!="Permission Denied"){
         qDebug()<<"Permission Granted";
-        QString jsonStr = permissions.toString();
+        QJniObject contacts = javaClass.callObjectMethod("loadContacts","()Ljava/lang/String;");
+        QString jsonStr = contacts.toString();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
         QJsonArray jsonArray = jsonDoc.array();
         this->clearItems();

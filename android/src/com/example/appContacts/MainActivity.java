@@ -4,6 +4,8 @@ import org.qtproject.qt.android.bindings.QtActivity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
@@ -11,6 +13,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
@@ -20,40 +23,45 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.google.gson.Gson;
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class MyObserver extends ContentObserver {
     public MyObserver(Handler handler,MainActivity main) {
-
         super(handler);
         this.main = main;
     }
     private MainActivity main;
-//    @Override
-//    public void onChange(boolean selfChange) {
-//
-//        Log.d("change","change");
-//        super.onChange(selfChange);
-//        main.updateContacts();
-//    }
-
     @Override
     public  void onChange(boolean selfChange, Uri uri) {
         super.onChange(selfChange,uri);
-        Log.d("change","change");
-        main.updateContacts();
+
+                Log.d("change","change");
+                main.updateContacts();
     }
 }
 
 public class MainActivity extends QtActivity {
     ArrayList<ContactsModel> arrayList = new ArrayList<ContactsModel>();
-
+    String[] contactPermission;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("","hello there");
         checkPermission();
+        contactPermission = new String[]{Manifest.permission.WRITE_CONTACTS};
         Handler handler = new Handler(getApplicationContext().getMainLooper());
         MyObserver observer = new MyObserver(handler,this);
         getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, observer);
+//        if (isWriteContactPermissionEnabled()){
+//            for (int i=0;i<100;i++) {
+//                saveContacts();
+//            }
+//        }
+//        else{
+//            requestWriteContactPermission();
+//        }
     }
 
     public String checkPermission() {
@@ -63,12 +71,14 @@ public class MainActivity extends QtActivity {
             ,new String[]{Manifest.permission.READ_CONTACTS},100);
             return "Permission Denied";
         } else {
-            return loadContacts();
+            return "Permission Granted";
+//            return loadContacts();
 //            loadContacts();
         }
+
     }
 
-    public String loadContacts(){
+    public String loadContacts() throws InterruptedException {
         arrayList.clear();
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,null,null,ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
         Uri mainUri= ContactsContract.Contacts.CONTENT_URI;
@@ -77,29 +87,37 @@ public class MainActivity extends QtActivity {
                 @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                 @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 //                Log.d("name",name);
-                Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-                String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?";
-                Cursor phoneCursor = getContentResolver().query(uriPhone,null,selection,new String[]{id},null);
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("Thread","thread2");
 
-                if (phoneCursor.moveToNext()){
-                    @SuppressLint("Range") String number = phoneCursor.getString(phoneCursor.getColumnIndex(
-                            ContactsContract.CommonDataKinds.Phone.NUMBER
-                    ));
+                        Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+                        String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?";
+                        Cursor phoneCursor = getContentResolver().query(uriPhone,null,selection,new String[]{id},null);
+
+                        if (phoneCursor.moveToNext()){
+                            @SuppressLint("Range") String number = phoneCursor.getString(phoneCursor.getColumnIndex(
+                                    ContactsContract.CommonDataKinds.Phone.NUMBER
+                            ));
 //                    Log.d("number",number);
-                    ContactsModel model = new ContactsModel();
-                    model.setName(name);
-                    model.setNumber(number);
-                    arrayList.add(model);
+                            ContactsModel model = new ContactsModel();
+                            model.setName(name);
+                            model.setNumber(number);
+                            arrayList.add(model);
 
-                }
-                phoneCursor.close();
+                        }
+                        phoneCursor.close();
+                    }
+                });
+                t.start();
+                t.join();
             }
         }
         cursor.close();
         Gson gson = new Gson();
         String json = gson.toJson(arrayList);
 //        Log.d("json",json);
-//        return arrayList;
         return json;
     }
     public native void sendUpdatedContacts();
@@ -109,12 +127,78 @@ public class MainActivity extends QtActivity {
         sendUpdatedContacts();
     }
 
+    private void saveContacts() {
+        Log.d("save","called");
+        ArrayList<ContentProviderOperation> cpo = new ArrayList<>();
+        int rawContactId = cpo.size();
+
+        cpo.add(ContentProviderOperation.newInsert(
+                        ContactsContract.RawContacts.CONTENT_URI)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                .build());
+
+        cpo.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValueBackReference(ContactsContract.RawContacts.Data.RAW_CONTACT_ID, 0)
+                .withValue(ContactsContract.RawContacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, "firsttName")
+                .build());
+
+        cpo.add(ContentProviderOperation
+                .newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,0)
+                .withValue(ContactsContract.Data.MIMETYPE,
+                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, "+971")
+                .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+                        ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+                .build());
+        cpo.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.RawContacts.Data.RAW_CONTACT_ID, rawContactId)
+                        .withValue(ContactsContract.RawContacts.Data.MIMETYPE,ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER,"+06")
+                        .withValue(ContactsContract. CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_HOME)
+                        .build());
+        try {
+            ContentProviderResult[] results = getContentResolver().applyBatch(ContactsContract.AUTHORITY, cpo);
+
+            Log.d("saved", "saveContact: Saved..."+results+cpo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d("notsaved:", "saveContact: " + e.getMessage());
+            Toast.makeText(this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+    private boolean isWriteContactPermissionEnabled () {
+        boolean result = ContextCompat.checkSelfPermission
+                (this, Manifest.permission.WRITE_CONTACTS) ==(PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
+        private void requestWriteContactPermission(){
+            ActivityCompat.requestPermissions ( this,contactPermission, 100);
+        }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 100 && grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
-            loadContacts();
+            try {
+                loadContacts();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
+//        if (grantResults. length > 0) {
+//            if (requestCode == 100){
+//                boolean haveWriteContactPermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+//                if (haveWriteContactPermission) {
+//                    saveContacts();
+//                }
+//                else{
+//                    Toast.makeText (this,"Permission denied...", Toast. LENGTH_SHORT).show();
+//                }
+//            }
+//        }
         else{
             Toast.makeText(MainActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
             checkPermission();
