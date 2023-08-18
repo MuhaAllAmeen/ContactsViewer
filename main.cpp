@@ -19,15 +19,15 @@ extern "C" JNIEXPORT void JNICALL Java_com_example_appContacts_MainActivity_send
     QJsonDocument jsonDoc = QJsonDocument::fromJson(qstr.toUtf8());
     QJsonArray jsonArray = jsonDoc.array();
     QMetaObject::invokeMethod(globalContactsList, "contactsDeleteBeforeUpdate");
-//    foreach (const QJsonValue & value, jsonArray) {
-//        QString name = value["name"].toString();
-//        QString number = value["number"].toString();
+    foreach (const QJsonValue & value, jsonArray) {
+        QString name = value["name"].toString();
+        QString number = value["number"].toString();
 //        qDebug()<<name<<number;
         Contact c;
-//        c.name=name;
-//        c.number=number;
+        c.name=name;
+        c.number=number;
         QMetaObject::invokeMethod(globalContactsList, "contactsUpdated", Q_ARG(Contact, c));
-//    }
+    }
 }
 int main(int argc, char *argv[])
 {
@@ -39,8 +39,7 @@ int main(int argc, char *argv[])
         contactsList->clearItems();
     });
     QObject::connect(contactsList, &ContactsList::contactsUpdated, [contactsList](const Contact &contacts) {
-//        contactsList->appendItem(contacts);
-        contactsList->checkContacts();
+        contactsList->appendItem(contacts);
     });
     globalContactsList = contactsList;
     engine.rootContext()->setContextProperty(QStringLiteral("contactsList"),contactsList);

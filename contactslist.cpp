@@ -15,12 +15,6 @@ ContactsList::ContactsList(QObject *parent)
     : QObject{parent}
 {
     this->checkContacts();
-//    QTimer *timer = new QTimer(this);
-//    connect(timer, &QTimer::timeout, [this]() {
-//        this->clearItems();
-//        this->checkContacts();
-//    });
-//    timer->start(10000);
 }
 
 QVector<Contact> ContactsList::contacts() const
@@ -63,8 +57,6 @@ void  ContactsList::checkContacts()
     QJniObject permissions = javaClass.callObjectMethod("checkPermission","()Ljava/lang/String;");
     if (permissions.toString()!="Permission Denied"){
         qDebug()<<"Permission Granted";
-//        QJniObject contacts = javaClass.callObjectMethod("loadContacts","()Ljava/lang/String;");
-//                qDebug()<<"json"<<contacts.toString();
         QString jsonStr = permissions.toString();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
         QJsonArray jsonArray = jsonDoc.array();
