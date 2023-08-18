@@ -60,6 +60,7 @@ void  ContactsList::checkContacts()
         QString jsonStr = permissions.toString();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
         QJsonArray jsonArray = jsonDoc.array();
+        this->clearItems();
         foreach (const QJsonValue & value, jsonArray) {
             QString name = value["name"].toString();
             QString number = value["number"].toString();

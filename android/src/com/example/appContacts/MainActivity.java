@@ -39,9 +39,6 @@ class MyObserver extends ContentObserver {
     @Override
     public  void onChange(boolean selfChange, Uri uri) {
         super.onChange(selfChange,uri);
-        // do s.th.
-        // depending on the handler you might be on the UI
-        // thread, so be cautious!
         Log.d("change","change");
         main.updateContacts();
     }
@@ -105,11 +102,11 @@ public class MainActivity extends QtActivity {
 //        return arrayList;
         return json;
     }
-    public native void sendUpdatedContacts(String Updatedcontacts);
+    public native void sendUpdatedContacts();
 
     public void updateContacts(){
         Toast.makeText(MainActivity.this, "Contacts Updated", Toast.LENGTH_SHORT).show();
-        sendUpdatedContacts(loadContacts());
+        sendUpdatedContacts();
     }
 
     @Override
