@@ -2,9 +2,6 @@ import QtQuick
 
 State{
     name:"expanded"
-//                    when: contactRect.ListView.isCurrentItem
-
-
     PropertyChanges{
         target:nameIcon
         height:90; width:90; radius:90

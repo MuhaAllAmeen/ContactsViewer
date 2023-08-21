@@ -1,5 +1,4 @@
 #include "contactslist.h"
-#include "qabstractitemmodel.h"
 #include <QJniObject>
 #include <jni.h>
 #include <qnativeinterface.h>
@@ -54,10 +53,8 @@ void ContactsList::clearItems()
 
 void ContactsList::deleteContact(QString id)
 {
-    qDebug()<<"called delete";
     for (int index=0; index<mContact.size();index++){
         if (mContact.at(index).id==id){
-            qDebug()<<"found";
             qDebug()<<mContact.size();
            emit preItemRemoved(index);
             mContact.removeAt(index);
@@ -74,7 +71,8 @@ void  ContactsList::checkContacts()
         qDebug()<<"Permission Granted";
         QJniObject contacts = javaClass.callObjectMethod("loadContacts","()Ljava/lang/String;");
         QString jsonStr = contacts.toString();
-        if (jsonStr.size()>12){
+//        qDebug()<<jsonStr;
+        if (!jsonStr.contains("delete")){
             QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
             QJsonArray jsonArray = jsonDoc.array();
     //        this->clearItems();
@@ -91,7 +89,11 @@ void  ContactsList::checkContacts()
             }
         }
         else{
-            deleteContact(jsonStr);
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.sliced(6).toUtf8());
+            QJsonArray jsonArray = jsonDoc.array();
+            foreach (const QJsonValue & value, jsonArray) {
+                deleteContact(value.toString());
+            }
         }
     }
 }

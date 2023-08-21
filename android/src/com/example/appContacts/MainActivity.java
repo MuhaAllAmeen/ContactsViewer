@@ -17,16 +17,10 @@ import android.os.Looper;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
-
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.google.gson.Gson;
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 class MyObserver extends ContentObserver {
     public MyObserver(Handler handler,MainActivity main) {
@@ -91,13 +85,11 @@ public class MainActivity extends QtActivity {
         arrayList.clear();
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP + " > ?",new String[] {String.valueOf(lastUpdatedTime)},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
         Uri mainUri= ContactsContract.Contacts.CONTENT_URI;
-        ExecutorService executorService = Executors.newFixedThreadPool(20);
         if (cursor.getCount()>0){
             while(cursor.moveToNext()){
                 @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                 @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 //                Log.d("name",name);
-
                         Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
                         String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?";
                         Cursor phoneCursor = getContentResolver().query(uriPhone,null,selection,new String[]{id},null);
@@ -125,12 +117,18 @@ public class MainActivity extends QtActivity {
         else{
             Cursor deleteCursor = getContentResolver().query(ContactsContract.DeletedContacts.CONTENT_URI,new String[]{ContactsContract.DeletedContacts.CONTACT_ID},ContactsContract.DeletedContacts.CONTACT_DELETED_TIMESTAMP+ " > ?",new String[] {String.valueOf(lastUpdatedTime)},null);
             String id="";
+            ArrayList<String> deleteIDs = new ArrayList<>();
             while (deleteCursor.moveToNext()){
                 id = deleteCursor.getString(deleteCursor.getColumnIndex(ContactsContract.DeletedContacts.CONTACT_ID));
-                Log.d("Deleted-id",id);
+//                Log.d("Deleted-id",id);
+                deleteIDs.add(id);
             }
+            Gson gson = new Gson();
+            String idJson = "delete"+gson.toJson(deleteIDs);
+            cursor.close();
             deleteCursor.close();
-            return id;
+            lastUpdatedTime = System.currentTimeMillis();
+            return idJson;
         }
     }
     public native void sendUpdatedContacts();

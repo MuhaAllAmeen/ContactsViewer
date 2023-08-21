@@ -2,7 +2,7 @@ import QtQuick
 
 Rectangle{
             id: contactRect
-            /*width: root.width; height:80;*/ color:"#F1DEC9"
+            color:"#F1DEC9"
             state:  "shrinked"
             radius: 5; width: root.width-10; height: state=="shrinked" ? 80 : 200
             Rectangle{
@@ -19,7 +19,6 @@ Rectangle{
 
             Text{
                 id:nameLabel
-//                anchors{left:nameIcon.right; verticalCenter: parent.verticalCenter; leftMargin: 5}
                 anchors.leftMargin: 5; anchors.bottomMargin: contactRect.state=="shrinked"? 0: 5
                 text: name; font.pixelSize:contactRect.state=="shrinked"?17:25
                 color:"#8D7B68"; font.bold: true
@@ -28,7 +27,6 @@ Rectangle{
                 id:numberLabel
                 anchors.rightMargin: 5; anchors.bottomMargin: contactRect.state=="shrinked"? 0: 5
                 color:"#8D7B68"
-//                anchors{right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 5}
                 text: number; font.pixelSize:contactRect.state=="shrinked"?17:25
             }
             states:[
