@@ -1,7 +1,7 @@
 package com.example.appContacts;
 
 public class ContactsModel {
-    String name, number;
+    String name, number,id;
 
     public String getNumber() {
         return number;
@@ -18,4 +18,8 @@ public class ContactsModel {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getId() {return id;}
+
+    public void setId(String id){ this.id=id;}
 }

@@ -6,6 +6,7 @@
 struct Contact{
     QString name;
     QString number;
+    QString id;
 };
 
 class ContactsList : public QObject
@@ -26,6 +27,7 @@ public slots:
     void appendItem(Contact contact);
     void clearItems();
     void checkContacts();
+    void deleteContact(QString id);
 private:
     QVector<Contact> mContact;
 };

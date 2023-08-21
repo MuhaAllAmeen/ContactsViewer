@@ -45,6 +45,7 @@ class MyObserver extends ContentObserver {
 
 public class MainActivity extends QtActivity {
     ArrayList<ContactsModel> arrayList = new ArrayList<ContactsModel>();
+    long lastUpdatedTime=0;
     String[] contactPermission;
     MyObserver observer;
     public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +65,7 @@ public class MainActivity extends QtActivity {
 //            requestWriteContactPermission();
 //        }
     }
+
     public void onDestroy() {
         super.onDestroy();
         getContentResolver().unregisterContentObserver(observer);
@@ -83,20 +85,21 @@ public class MainActivity extends QtActivity {
 
     }
 
+
+    @SuppressLint("Range")
     public String loadContacts() throws InterruptedException {
         arrayList.clear();
-        Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,null,null,ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+        Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP + " > ?",new String[] {String.valueOf(lastUpdatedTime)},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
         Uri mainUri= ContactsContract.Contacts.CONTENT_URI;
+        ExecutorService executorService = Executors.newFixedThreadPool(20);
         if (cursor.getCount()>0){
             while(cursor.moveToNext()){
                 @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                 @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 //                Log.d("name",name);
-                Thread t = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
+
                         Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-                        String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?";
+                        String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?";
                         Cursor phoneCursor = getContentResolver().query(uriPhone,null,selection,new String[]{id},null);
 
                         if (phoneCursor.moveToNext()){
@@ -105,6 +108,7 @@ public class MainActivity extends QtActivity {
                             ));
 //                    Log.d("number",number);
                             ContactsModel model = new ContactsModel();
+                            model.setId(id);
                             model.setName(name);
                             model.setNumber(number);
                             arrayList.add(model);
@@ -112,16 +116,22 @@ public class MainActivity extends QtActivity {
                         }
                         phoneCursor.close();
                     }
-                });
-                t.start();
-                t.join();
+            Gson gson = new Gson();
+            String json = gson.toJson(arrayList);
+            cursor.close();
+            lastUpdatedTime = System.currentTimeMillis();
+            return json;
+        }//if cursor is empty that means a contact has been deleted.
+        else{
+            Cursor deleteCursor = getContentResolver().query(ContactsContract.DeletedContacts.CONTENT_URI,new String[]{ContactsContract.DeletedContacts.CONTACT_ID},ContactsContract.DeletedContacts.CONTACT_DELETED_TIMESTAMP+ " > ?",new String[] {String.valueOf(lastUpdatedTime)},null);
+            String id="";
+            while (deleteCursor.moveToNext()){
+                id = deleteCursor.getString(deleteCursor.getColumnIndex(ContactsContract.DeletedContacts.CONTACT_ID));
+                Log.d("Deleted-id",id);
             }
+            deleteCursor.close();
+            return id;
         }
-        cursor.close();
-        Gson gson = new Gson();
-        String json = gson.toJson(arrayList);
-//        Log.d("json",json);
-        return json;
     }
     public native void sendUpdatedContacts();
 

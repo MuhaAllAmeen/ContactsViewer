@@ -88,7 +88,7 @@ void ContactsModel::setList(ContactsList *list)
             endInsertRows();
         });
         connect(mList, &ContactsList::preItemRemoved, this, [=](int index) {
-            beginRemoveRows(QModelIndex(), index, rowCount());
+            beginRemoveRows(QModelIndex(), index, index);
         });
         connect(mList, &ContactsList::postItemRemoved, this, [=]() {
             endRemoveRows();

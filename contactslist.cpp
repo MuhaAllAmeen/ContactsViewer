@@ -1,4 +1,5 @@
 #include "contactslist.h"
+#include "qabstractitemmodel.h"
 #include <QJniObject>
 #include <jni.h>
 #include <qnativeinterface.h>
@@ -51,6 +52,20 @@ void ContactsList::clearItems()
     emit postItemRemoved();
 }
 
+void ContactsList::deleteContact(QString id)
+{
+    qDebug()<<"called delete";
+    for (int index=0; index<mContact.size();index++){
+        if (mContact.at(index).id==id){
+            qDebug()<<"found";
+            qDebug()<<mContact.size();
+           emit preItemRemoved(index);
+            mContact.removeAt(index);
+           emit postItemRemoved();
+        }
+    }
+}
+
 void  ContactsList::checkContacts()
 {
     QJniObject javaClass = QNativeInterface::QAndroidApplication::context();
@@ -59,18 +74,27 @@ void  ContactsList::checkContacts()
         qDebug()<<"Permission Granted";
         QJniObject contacts = javaClass.callObjectMethod("loadContacts","()Ljava/lang/String;");
         QString jsonStr = contacts.toString();
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
-        QJsonArray jsonArray = jsonDoc.array();
-        this->clearItems();
-        foreach (const QJsonValue & value, jsonArray) {
-            QString name = value["name"].toString();
-            QString number = value["number"].toString();
-//                        qDebug()<<name<<number;
-            Contact c;
-            c.name=name;
-            c.number=number;
-            appendItem(c);
+        if (jsonStr.size()>12){
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
+            QJsonArray jsonArray = jsonDoc.array();
+    //        this->clearItems();
+            foreach (const QJsonValue & value, jsonArray) {
+                QString id = value["id"].toString();
+                QString name = value["name"].toString();
+                QString number = value["number"].toString();
+    //            qDebug()<<name<<number<<id;
+                Contact c;
+                c.name=name;
+                c.number=number;
+                c.id=id;
+                appendItem(c);
+            }
+        }
+        else{
+            deleteContact(jsonStr);
         }
     }
 }
+
+
 
