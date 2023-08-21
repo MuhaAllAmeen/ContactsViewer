@@ -27,15 +27,7 @@ Window {
                 list : contactsList }
             spacing: 5
             delegate: ListViewDelegate{}
-            Connections{
-                target: contactsModel
-                function onModelAboutToBeReset(){
-                    console.log("model Reset")
-                }
-                function onModelReset(){
-                    console.log("model Reset")
-                }
-            }
+
         }
     }
 }

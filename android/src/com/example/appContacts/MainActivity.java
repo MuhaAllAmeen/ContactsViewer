@@ -46,13 +46,14 @@ class MyObserver extends ContentObserver {
 public class MainActivity extends QtActivity {
     ArrayList<ContactsModel> arrayList = new ArrayList<ContactsModel>();
     String[] contactPermission;
+    MyObserver observer;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("","hello there");
         checkPermission();
         contactPermission = new String[]{Manifest.permission.WRITE_CONTACTS};
         Handler handler = new Handler(getApplicationContext().getMainLooper());
-        MyObserver observer = new MyObserver(handler,this);
+        observer = new MyObserver(handler,this);
         getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, observer);
 //        if (isWriteContactPermissionEnabled()){
 //            for (int i=0;i<100;i++) {
@@ -62,6 +63,10 @@ public class MainActivity extends QtActivity {
 //        else{
 //            requestWriteContactPermission();
 //        }
+    }
+    public void onDestroy() {
+        super.onDestroy();
+        getContentResolver().unregisterContentObserver(observer);
     }
 
     public String checkPermission() {
@@ -90,8 +95,6 @@ public class MainActivity extends QtActivity {
                 Thread t = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("Thread","thread2");
-
                         Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
                         String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?";
                         Cursor phoneCursor = getContentResolver().query(uriPhone,null,selection,new String[]{id},null);
@@ -123,8 +126,8 @@ public class MainActivity extends QtActivity {
     public native void sendUpdatedContacts();
 
     public void updateContacts(){
-        Toast.makeText(MainActivity.this, "Contacts Updated", Toast.LENGTH_SHORT).show();
         sendUpdatedContacts();
+        Toast.makeText(MainActivity.this, "Contacts Updated", Toast.LENGTH_SHORT).show();
     }
 
     private void saveContacts() {
