@@ -8,9 +8,7 @@
 #include <QQmlContext>
 #include "contactsmodel.h"
 #include "contactslist.h"
-#define JNIIMPORT
-#define JNIEXPORT  __attribute__ ((visibility ("default")))
-#define JNICALL
+
 static ContactsList *globalContactsList = nullptr;
 extern "C" JNIEXPORT void JNICALL Java_com_example_appContacts_MainActivity_sendUpdatedContacts(JNIEnv *env, jobject obj,jstring jstr) {
     const char *cstr = env->GetStringUTFChars(jstr, nullptr);

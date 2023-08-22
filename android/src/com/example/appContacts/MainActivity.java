@@ -1,5 +1,7 @@
 package com.example.appContacts;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.qtproject.qt.android.bindings.QtActivity;
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -19,8 +21,8 @@ import android.util.Log;
 import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import com.google.gson.Gson;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class MyObserver extends ContentObserver {
     public MyObserver(Handler handler,MainActivity main) {
@@ -33,7 +35,6 @@ class MyObserver extends ContentObserver {
         super.onChange(selfChange,uri);
 
                 Log.d("change","change");
-//                main.updateContacts();
         try {
             main.loadContacts();
         } catch (InterruptedException e) {
@@ -43,8 +44,10 @@ class MyObserver extends ContentObserver {
 }
 
 public class MainActivity extends QtActivity {
-    ArrayList<ContactsModel> arrayList = new ArrayList<ContactsModel>();
+//    ArrayList<ContactsModel> arrayList = new ArrayList<ContactsModel>();
+
     long lastUpdatedTime=0;
+    JSONArray jsonArray;
     String[] contactPermission;
     MyObserver observer;
     public void onCreate(Bundle savedInstanceState) {
@@ -87,7 +90,7 @@ public class MainActivity extends QtActivity {
 
     @SuppressLint("Range")
     public String loadContacts() throws InterruptedException {
-        arrayList.clear();
+        jsonArray = new JSONArray();
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP + " > ?",new String[] {String.valueOf(lastUpdatedTime)},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
         Uri mainUri= ContactsContract.Contacts.CONTENT_URI;
         if (cursor.getCount()>0){
@@ -104,21 +107,20 @@ public class MainActivity extends QtActivity {
                                     ContactsContract.CommonDataKinds.Phone.NUMBER
                             ));
 //                    Log.d("number",number);
-                            ContactsModel model = new ContactsModel();
-                            model.setId(id);
-                            model.setName(name);
-                            model.setNumber(number);
-                            arrayList.add(model);
-
+                            HashMap<String, String> contactsMap = new HashMap<>();
+                            contactsMap.put("number",number);
+                            contactsMap.put("name",name);
+                            contactsMap.put("id",id);
+                            JSONObject jsonObject = new JSONObject(contactsMap);
+                            jsonArray.put(jsonObject);
                         }
                         phoneCursor.close();
                     }
-            Gson gson = new Gson();
-            String json = gson.toJson(arrayList);
             cursor.close();
             lastUpdatedTime = System.currentTimeMillis();
-            sendUpdatedContacts(json);
-            return json;
+//            Log.d("json",jsonArray.toString());
+            sendUpdatedContacts(jsonArray.toString());
+            return jsonArray.toString();
         }//if cursor is empty that means a contact has been deleted.
         else{
             Cursor deleteCursor = getContentResolver().query(ContactsContract.DeletedContacts.CONTENT_URI,new String[]{ContactsContract.DeletedContacts.CONTACT_ID},ContactsContract.DeletedContacts.CONTACT_DELETED_TIMESTAMP+ " > ?",new String[] {String.valueOf(lastUpdatedTime)},null);
@@ -129,13 +131,12 @@ public class MainActivity extends QtActivity {
 //                Log.d("Deleted-id",id);
                 deleteIDs.add(id);
             }
-            Gson gson = new Gson();
-            String idJson = gson.toJson(deleteIDs);
+            jsonArray = new JSONArray(deleteIDs);
             cursor.close();
             deleteCursor.close();
             lastUpdatedTime = System.currentTimeMillis();
-            sendDeletedIDs(idJson);
-            return "delete"+idJson;
+            sendDeletedIDs(jsonArray.toString());
+            return "delete"+jsonArray.toString();
         }
     }
     public native void sendUpdatedContacts(String contacts);
