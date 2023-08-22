@@ -44,12 +44,7 @@ void ContactsList::appendItem(Contact contact)
 
 }
 
-void ContactsList::clearItems()
-{
-    emit preItemRemoved(0);
-    mContact.clear();
-    emit postItemRemoved();
-}
+
 
 void ContactsList::deleteContact(QString id)
 {
@@ -63,6 +58,21 @@ void ContactsList::deleteContact(QString id)
     }
 }
 
+void ContactsList::updateItem(Contact c)
+{
+    jboolean found = false;
+    for (int index=0; index<mContact.size();index++){
+        if (mContact.at(index).id==c.id){
+           emit contactChanged(index,c);
+           found=true;
+        }
+    }
+    if(!found){
+        this->appendItem(c);
+    }
+
+}
+
 void  ContactsList::checkContacts()
 {
     QJniObject javaClass = QNativeInterface::QAndroidApplication::context();
@@ -72,10 +82,8 @@ void  ContactsList::checkContacts()
         QJniObject contacts = javaClass.callObjectMethod("loadContacts","()Ljava/lang/String;");
         QString jsonStr = contacts.toString();
 //        qDebug()<<jsonStr;
-        if (!jsonStr.contains("delete")){
             QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
             QJsonArray jsonArray = jsonDoc.array();
-    //        this->clearItems();
             foreach (const QJsonValue & value, jsonArray) {
                 QString id = value["id"].toString();
                 QString name = value["name"].toString();
@@ -87,14 +95,6 @@ void  ContactsList::checkContacts()
                 c.id=id;
                 appendItem(c);
             }
-        }
-        else{
-            QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.sliced(6).toUtf8());
-            QJsonArray jsonArray = jsonDoc.array();
-            foreach (const QJsonValue & value, jsonArray) {
-                deleteContact(value.toString());
-            }
-        }
     }
 }
 

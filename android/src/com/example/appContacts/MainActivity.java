@@ -33,7 +33,12 @@ class MyObserver extends ContentObserver {
         super.onChange(selfChange,uri);
 
                 Log.d("change","change");
-                main.updateContacts();
+//                main.updateContacts();
+        try {
+            main.loadContacts();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 
@@ -112,6 +117,7 @@ public class MainActivity extends QtActivity {
             String json = gson.toJson(arrayList);
             cursor.close();
             lastUpdatedTime = System.currentTimeMillis();
+            sendUpdatedContacts(json);
             return json;
         }//if cursor is empty that means a contact has been deleted.
         else{
@@ -124,19 +130,21 @@ public class MainActivity extends QtActivity {
                 deleteIDs.add(id);
             }
             Gson gson = new Gson();
-            String idJson = "delete"+gson.toJson(deleteIDs);
+            String idJson = gson.toJson(deleteIDs);
             cursor.close();
             deleteCursor.close();
             lastUpdatedTime = System.currentTimeMillis();
-            return idJson;
+            sendDeletedIDs(idJson);
+            return "delete"+idJson;
         }
     }
-    public native void sendUpdatedContacts();
+    public native void sendUpdatedContacts(String contacts);
+    public native void sendDeletedIDs(String ids);
 
-    public void updateContacts(){
-        sendUpdatedContacts();
-        Toast.makeText(MainActivity.this, "Contacts Updated", Toast.LENGTH_SHORT).show();
-    }
+//    public void updateContacts(){
+//        sendUpdatedContacts();
+//        Toast.makeText(MainActivity.this, "Contacts Updated", Toast.LENGTH_SHORT).show();
+//    }
 
     private void saveContacts() {
         Log.d("save","called");

@@ -22,12 +22,14 @@ signals:
     void postItemAppended();
     void preItemRemoved(int index);
     void postItemRemoved();
-    void contactsUpdated();
+    void contactChanged(int index, Contact c);
+    void contactsUpdated(const Contact contact);
+    void contactsDeleted(const QString &id);
 public slots:
     void appendItem(Contact contact);
-    void clearItems();
     void checkContacts();
     void deleteContact(QString id);
+    void updateItem(Contact c);
 private:
     QVector<Contact> mContact;
 };

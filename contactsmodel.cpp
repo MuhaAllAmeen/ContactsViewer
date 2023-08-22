@@ -93,6 +93,10 @@ void ContactsModel::setList(ContactsList *list)
         connect(mList, &ContactsList::postItemRemoved, this, [=]() {
             endRemoveRows();
         });
+        connect(mList, &ContactsList::contactChanged, this, [=](int index, Contact c){
+            setData(createIndex(index,0),c.name,nameRole);
+            setData(createIndex(index,0),c.number,numberRole);
+        });
     endResetModel();
     }
 }
