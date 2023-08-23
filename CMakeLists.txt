@@ -17,8 +17,8 @@ qt_add_qml_module(appContacts
     VERSION 1.0
     QML_FILES Main.qml
     SOURCES
-    SOURCES contactsmodel.cpp contactsmodel.h
-    SOURCES contactslist.h contactslist.cpp
+#    SOURCES contactsmodel.cpp contactsmodel.h
+#    SOURCES contactslist.h contactslist.cpp
     QML_FILES
     QML_FILES ListViewDelegate.qml
     QML_FILES ExpandedState.qml

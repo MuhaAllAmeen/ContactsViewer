@@ -41,7 +41,6 @@ class MyObserver extends ContentObserver {
 }
 
 public class MainActivity extends QtActivity {
-//    ArrayList<ContactsModel> arrayList = new ArrayList<ContactsModel>();
     long ptr;
     long lastUpdatedTime=0;
     JSONArray jsonArray;
@@ -78,8 +77,6 @@ public class MainActivity extends QtActivity {
             return "Permission Denied";
         } else {
             return "Permission Granted";
-//            return loadContacts();
-//            loadContacts();
         }
 
     }
