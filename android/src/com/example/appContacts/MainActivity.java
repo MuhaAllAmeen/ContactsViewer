@@ -92,67 +92,50 @@ public class MainActivity extends QtActivity {
     @SuppressLint("Range")
     public void loadContacts() throws InterruptedException {
         jsonArray = new JSONArray();
-        Thread t1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP + " > ?",new String[] {String.valueOf(lastUpdatedTime)},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
-                Uri mainUri= ContactsContract.Contacts.CONTENT_URI;
-                if (cursor.getCount()>0){
-
-                    while(cursor.moveToNext()){
-                        @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                        @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-//                Log.d("name",name);
-                        Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-                        String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?";
-                        Cursor phoneCursor = getContentResolver().query(uriPhone,null,selection,new String[]{id},null);
-
-                        if (phoneCursor.moveToNext()){
-                            @SuppressLint("Range") String number = phoneCursor.getString(phoneCursor.getColumnIndex(
-                                    ContactsContract.CommonDataKinds.Phone.NUMBER
-                            ));
-//                    Log.d("number",number);
-                            HashMap<String, String> contactsMap = new HashMap<>();
-                            contactsMap.put("number",number);
-                            contactsMap.put("name",name);
-                            contactsMap.put("id",id);
-                            JSONObject jsonObject = new JSONObject(contactsMap);
-                            jsonArray.put(jsonObject);
-                        }
-                        phoneCursor.close();
-                    }
-                    cursor.close();
-                    lastUpdatedTime = System.currentTimeMillis();
-//                    Log.d("json",jsonArray.toString());
-                    sendUpdatedContacts(jsonArray.toString(), ptr);
-                }
-            }
-        });
-        Thread t2 = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP + " > ?",new String[] {String.valueOf(lastUpdatedTime)},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
-                Cursor deleteCursor = getContentResolver().query(ContactsContract.DeletedContacts.CONTENT_URI,new String[]{ContactsContract.DeletedContacts.CONTACT_ID},ContactsContract.DeletedContacts.CONTACT_DELETED_TIMESTAMP+ " > ?",new String[] {String.valueOf(lastUpdatedTime)},null);
-                String id="";
-                ArrayList<String> deleteIDs = new ArrayList<>();
-                while (deleteCursor.moveToNext()){
-                    id = deleteCursor.getString(deleteCursor.getColumnIndex(ContactsContract.DeletedContacts.CONTACT_ID));
+        if(lastUpdatedTime!=0) {
+            Cursor deleteCursor = getContentResolver().query(ContactsContract.DeletedContacts.CONTENT_URI, new String[]{ContactsContract.DeletedContacts.CONTACT_ID}, ContactsContract.DeletedContacts.CONTACT_DELETED_TIMESTAMP + " > ?", new String[]{String.valueOf(lastUpdatedTime)}, null);
+            String id = "";
+            ArrayList<String> deleteIDs = new ArrayList<>();
+            while (deleteCursor.moveToNext()) {
+                id = deleteCursor.getString(deleteCursor.getColumnIndex(ContactsContract.DeletedContacts.CONTACT_ID));
 //                    Log.d("Deleted-id",id);
-                    deleteIDs.add(id);
-                }
-                JSONArray jsonArrayy = new JSONArray(deleteIDs);
-                cursor.close();
-                deleteCursor.close();
-                lastUpdatedTime = System.currentTimeMillis();
-                sendDeletedIDs(jsonArrayy.toString(), ptr);
+                deleteIDs.add(id);
             }
-        });
-        t1.start();
-        t2.start();
-        t1.join();
-        t2.join();
+            JSONArray jsonArrayy = new JSONArray(deleteIDs);
+            deleteCursor.close();
+            sendDeletedIDs(jsonArrayy.toString(), ptr);
+        }
+        Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP + " > ?",new String[] {String.valueOf(lastUpdatedTime)},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+        if (cursor.getCount()>0){
+            while(cursor.moveToNext()){
+                @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+//                Log.d("name",name);
+                Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+                String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?";
+                Cursor phoneCursor = getContentResolver().query(uriPhone,null,selection,new String[]{id},null);
+
+                if (phoneCursor.moveToNext()){
+                    @SuppressLint("Range") String number = phoneCursor.getString(phoneCursor.getColumnIndex(
+                            ContactsContract.CommonDataKinds.Phone.NUMBER
+                    ));
+//                    Log.d("number",number);
+                    HashMap<String, String> contactsMap = new HashMap<>();
+                    contactsMap.put("number",number);
+                    contactsMap.put("name",name);
+                    contactsMap.put("id",id);
+                    JSONObject jsonObject = new JSONObject(contactsMap);
+                    jsonArray.put(jsonObject);
+                }
+                phoneCursor.close();
+            }
+            cursor.close();
+            lastUpdatedTime = System.currentTimeMillis();
+//                    Log.d("json",jsonArray.toString());
+            sendUpdatedContacts(jsonArray.toString(), ptr);
+        }
     }
+
     public native void sendUpdatedContacts(String contacts, long ptr);
     public native void sendDeletedIDs(String ids, long ptr);
 
