@@ -40,9 +40,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_example_appContacts_MainActivity_send
 ContactssModel::ContactssModel(QObject *parent)
     : QAbstractListModel(parent)
 {
-    this->checkContacts();
+//    this->checkContacts();
     QJniObject javaClass = QNativeInterface::QAndroidApplication::context();
     jlong ptr = javaClass.callMethod<long>("setPointer","(J)J",(long)(ContactssModel *)this);
+    javaClass.callMethod<void>("loadContacts","()V");
 }
 
 int ContactssModel::rowCount(const QModelIndex &parent) const

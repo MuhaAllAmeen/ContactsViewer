@@ -7,12 +7,15 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
+import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
@@ -87,14 +90,18 @@ public class MainActivity extends QtActivity {
         return ptr;
     }
     @SuppressLint("Range")
-    public String loadContacts() throws InterruptedException {
+    public void loadContacts() throws InterruptedException {
         jsonArray = new JSONArray();
-        Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP + " > ?",new String[] {String.valueOf(lastUpdatedTime)},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
-        Uri mainUri= ContactsContract.Contacts.CONTENT_URI;
-        if (cursor.getCount()>0){
-            while(cursor.moveToNext()){
-                @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP + " > ?",new String[] {String.valueOf(lastUpdatedTime)},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+                Uri mainUri= ContactsContract.Contacts.CONTENT_URI;
+                if (cursor.getCount()>0){
+
+                    while(cursor.moveToNext()){
+                        @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                        @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 //                Log.d("name",name);
                         Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
                         String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?";
@@ -114,28 +121,37 @@ public class MainActivity extends QtActivity {
                         }
                         phoneCursor.close();
                     }
-            cursor.close();
-            lastUpdatedTime = System.currentTimeMillis();
-//            Log.d("json",jsonArray.toString());
-            sendUpdatedContacts(jsonArray.toString(), ptr);
-            return jsonArray.toString();
-        }//if cursor is empty that means a contact has been deleted.
-        else{
-            Cursor deleteCursor = getContentResolver().query(ContactsContract.DeletedContacts.CONTENT_URI,new String[]{ContactsContract.DeletedContacts.CONTACT_ID},ContactsContract.DeletedContacts.CONTACT_DELETED_TIMESTAMP+ " > ?",new String[] {String.valueOf(lastUpdatedTime)},null);
-            String id="";
-            ArrayList<String> deleteIDs = new ArrayList<>();
-            while (deleteCursor.moveToNext()){
-                id = deleteCursor.getString(deleteCursor.getColumnIndex(ContactsContract.DeletedContacts.CONTACT_ID));
-//                Log.d("Deleted-id",id);
-                deleteIDs.add(id);
+                    cursor.close();
+                    lastUpdatedTime = System.currentTimeMillis();
+//                    Log.d("json",jsonArray.toString());
+                    sendUpdatedContacts(jsonArray.toString(), ptr);
+                }
             }
-            jsonArray = new JSONArray(deleteIDs);
-            cursor.close();
-            deleteCursor.close();
-            lastUpdatedTime = System.currentTimeMillis();
-            sendDeletedIDs(jsonArray.toString(), ptr);
-            return "delete"+jsonArray.toString();
-        }
+        });
+        Thread t2 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP + " > ?",new String[] {String.valueOf(lastUpdatedTime)},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+                Cursor deleteCursor = getContentResolver().query(ContactsContract.DeletedContacts.CONTENT_URI,new String[]{ContactsContract.DeletedContacts.CONTACT_ID},ContactsContract.DeletedContacts.CONTACT_DELETED_TIMESTAMP+ " > ?",new String[] {String.valueOf(lastUpdatedTime)},null);
+                String id="";
+                ArrayList<String> deleteIDs = new ArrayList<>();
+                while (deleteCursor.moveToNext()){
+                    id = deleteCursor.getString(deleteCursor.getColumnIndex(ContactsContract.DeletedContacts.CONTACT_ID));
+//                    Log.d("Deleted-id",id);
+                    deleteIDs.add(id);
+                }
+                JSONArray jsonArrayy = new JSONArray(deleteIDs);
+                cursor.close();
+                deleteCursor.close();
+                lastUpdatedTime = System.currentTimeMillis();
+                sendDeletedIDs(jsonArrayy.toString(), ptr);
+            }
+        });
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
     }
     public native void sendUpdatedContacts(String contacts, long ptr);
     public native void sendDeletedIDs(String ids, long ptr);
