@@ -30,7 +30,8 @@ Window {
                 clip: true
                 interactive:false
                 model: ContactsModel {
-                    id:contactsModel }
+                    id:contactsModel
+                }
                 spacing: 5
                 delegate: ListViewDelegate{}
 
