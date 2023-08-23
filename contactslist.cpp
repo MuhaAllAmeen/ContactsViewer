@@ -7,14 +7,67 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QTimer>
+//extern "C" JNIEXPORT void JNICALL Java_com_example_appContacts_MainActivity_sendUpdatedContacts(JNIEnv *env, jobject obj,jstring jstr, jlong ptr) {
+//    const char *cstr = env->GetStringUTFChars(jstr, nullptr);
+//    QString contacts = QString::fromUtf8(cstr);
+//    env->ReleaseStringUTFChars(jstr, cstr);
+//    QJsonDocument jsonDoc = QJsonDocument::fromJson(contacts.toUtf8());
+//    QJsonArray jsonArray = jsonDoc.array();
+//    qDebug()<<"called"<<ptr;
+//    if(ptr!=0){
+//        qDebug()<<"called"<<ptr;
 
+//        ContactsList *cl = reinterpret_cast<ContactsList *>(ptr);
+//        foreach (const QJsonValue &value, jsonArray) {
+//            QString id = value["id"].toString();
+//            QString name = value["name"].toString();
+//            QString number = value["number"].toString();
+//            Contact c;
+//            qDebug()<<"ss"<<id<<name<<number;
+//            c.name=name; c.id=id; c.number=number;
+//            cl->appendItem({"ss","ss","ss"});
+//            qDebug()<<"in"<<ContactsList::getInstance();
+//            ContactsList::instance->appendItem(c);
+//            ContactsList::getInstance()->appendItem(c);
+//            ContactsList::getInstance()->appendItem({"ss","ss","ss"});
+//            cl->appendItem(c);
 
+//    //        QMetaObject::invokeMethod(globalContactsList, "contactsUpdated",Q_ARG(Contact,c));
+//        }
+//    }
 
+//}
+//extern "C" JNIEXPORT void JNICALL Java_com_example_appContacts_MainActivity_sendDeletedIDs(JNIEnv *env, jobject obj,jstring jstr, jlong ptr) {
+//    const char *cstr = env->GetStringUTFChars(jstr, nullptr);
+//    QString contacts = QString::fromUtf8(cstr);
+//    env->ReleaseStringUTFChars(jstr, cstr);
+//    QJsonDocument jsonDoc = QJsonDocument::fromJson(contacts.toUtf8());
+//    QJsonArray jsonArray = jsonDoc.array();
+//    foreach (const QJsonValue &value, jsonArray) {
+//        QMetaObject::invokeMethod(globalContactsList, "contactsDeleted",Q_ARG(QString,value.toString()));
+//    }
+//}
+
+ContactsList* ContactsList::instance = nullptr;
 ContactsList::ContactsList(QObject *parent)
     : QObject{parent}
 {
     this->checkContacts();
+    instance = this;
+
+}
+ContactsList* ContactsList::getInstance(/*QObject *parent*/)
+{
+//    if (!instance)
+    qDebug()<<"instance"<<instance;
+//        instance = new ContactsList(/*parent*/);
+    return instance;
+}
+
+void ContactsList::setInstance(ContactsList *cl)
+{
+    instance=cl;
+    qDebug()<<instance;
 }
 
 QVector<Contact> ContactsList::contacts() const
@@ -50,7 +103,6 @@ void ContactsList::deleteContact(QString id)
 {
     for (int index=0; index<mContact.size();index++){
         if (mContact.at(index).id==id){
-            qDebug()<<mContact.size();
            emit preItemRemoved(index);
             mContact.removeAt(index);
            emit postItemRemoved();
@@ -93,7 +145,7 @@ void  ContactsList::checkContacts()
                 c.name=name;
                 c.number=number;
                 c.id=id;
-                appendItem(c);
+                this->appendItem(c);
             }
     }
 }

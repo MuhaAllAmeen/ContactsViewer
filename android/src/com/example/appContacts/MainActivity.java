@@ -5,17 +5,14 @@ import org.json.JSONObject;
 import org.qtproject.qt.android.bindings.QtActivity;
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
-import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
@@ -45,7 +42,7 @@ class MyObserver extends ContentObserver {
 
 public class MainActivity extends QtActivity {
 //    ArrayList<ContactsModel> arrayList = new ArrayList<ContactsModel>();
-
+    long ptr;
     long lastUpdatedTime=0;
     JSONArray jsonArray;
     String[] contactPermission;
@@ -87,7 +84,11 @@ public class MainActivity extends QtActivity {
 
     }
 
-
+    public long setPointer(long pointer){
+        ptr = pointer;
+        Log.d("ptr", String.valueOf(ptr));
+        return ptr;
+    }
     @SuppressLint("Range")
     public String loadContacts() throws InterruptedException {
         jsonArray = new JSONArray();
@@ -119,7 +120,7 @@ public class MainActivity extends QtActivity {
             cursor.close();
             lastUpdatedTime = System.currentTimeMillis();
 //            Log.d("json",jsonArray.toString());
-            sendUpdatedContacts(jsonArray.toString());
+            sendUpdatedContacts(jsonArray.toString(), ptr);
             return jsonArray.toString();
         }//if cursor is empty that means a contact has been deleted.
         else{
@@ -135,12 +136,12 @@ public class MainActivity extends QtActivity {
             cursor.close();
             deleteCursor.close();
             lastUpdatedTime = System.currentTimeMillis();
-            sendDeletedIDs(jsonArray.toString());
+            sendDeletedIDs(jsonArray.toString(), ptr);
             return "delete"+jsonArray.toString();
         }
     }
-    public native void sendUpdatedContacts(String contacts);
-    public native void sendDeletedIDs(String ids);
+    public native void sendUpdatedContacts(String contacts, long ptr);
+    public native void sendDeletedIDs(String ids, long ptr);
 
 //    public void updateContacts(){
 //        sendUpdatedContacts();

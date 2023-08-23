@@ -23,6 +23,7 @@ qt_add_qml_module(appContacts
     QML_FILES ListViewDelegate.qml
     QML_FILES ExpandedState.qml
     QML_FILES ShrinkedState.qml
+    SOURCES contactssmodel.h contactssmodel.cpp
 )
 qt_add_resources(appContacts "android"
     PREFIX /

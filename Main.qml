@@ -18,15 +18,22 @@ Window {
         }
     }
 
-    ListView{
-        id: listView
-        anchors{top: contactsHeading.bottom; topMargin: 10; bottom: parent.bottom; bottomMargin: 10; horizontalCenter: parent.horizontalCenter}
-        width: parent.width-10; height: parent.height-contactsHeading.height
-        clip: true
-        model: ContactsModel {
-            id:contactsModel
-            list : contactsList }
-        spacing: 5
-        delegate: ListViewDelegate{}
+    Flickable{
+            anchors{top: contactsHeading.bottom; topMargin: 20; bottom: parent.bottom; horizontalCenter: parent.horizontalCenter}
+            width: parent.width-10; height: parent.height-contactsHeading.height
+            contentHeight: listView.contentHeight
+            clip: true
+            interactive: true
+            ListView{
+                anchors.fill: parent
+                id: listView
+                clip: true
+                interactive:false
+                model: ContactsModel {
+                    id:contactsModel }
+                spacing: 5
+                delegate: ListViewDelegate{}
+
+            }
         }
 }
