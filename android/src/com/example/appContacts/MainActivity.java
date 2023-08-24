@@ -23,6 +23,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class MyObserver extends ContentObserver {
     public MyObserver(Handler handler,MainActivity main) {
@@ -34,11 +36,10 @@ class MyObserver extends ContentObserver {
     public  void onChange(boolean selfChange, Uri uri) {
         super.onChange(selfChange,uri);
 
-                Log.d("change","change");
+        Log.d("change","change");
         try {
             main.loadContacts();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (InterruptedException e) {throw new RuntimeException(e);
         }
     }
 }
@@ -46,6 +47,7 @@ class MyObserver extends ContentObserver {
 public class MainActivity extends QtActivity {
     long ptr;
     long lastUpdatedTime=0;
+    boolean firstPass=true;
     JSONArray jsonArray;
     String[] contactPermission;
     MyObserver observer;
@@ -57,14 +59,6 @@ public class MainActivity extends QtActivity {
         Handler handler = new Handler(getApplicationContext().getMainLooper());
         observer = new MyObserver(handler,this);
         getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, observer);
-//        if (isWriteContactPermissionEnabled()){
-//            for (int i=0;i<100;i++) {
-//                saveContacts();
-//            }
-//        }
-//        else{
-//            requestWriteContactPermission();
-//        }
     }
 
     public void onDestroy() {
@@ -94,19 +88,26 @@ public class MainActivity extends QtActivity {
         jsonArray = new JSONArray();
         if(lastUpdatedTime!=0) {
             Cursor deleteCursor = getContentResolver().query(ContactsContract.DeletedContacts.CONTENT_URI, new String[]{ContactsContract.DeletedContacts.CONTACT_ID}, ContactsContract.DeletedContacts.CONTACT_DELETED_TIMESTAMP + " > ?", new String[]{String.valueOf(lastUpdatedTime)}, null);
-            String id = "";
-            ArrayList<String> deleteIDs = new ArrayList<>();
-            while (deleteCursor.moveToNext()) {
-                id = deleteCursor.getString(deleteCursor.getColumnIndex(ContactsContract.DeletedContacts.CONTACT_ID));
-//                    Log.d("Deleted-id",id);
-                deleteIDs.add(id);
+
+            if (deleteCursor.getCount() > 0) {
+                Log.d("delcount", String.valueOf(deleteCursor.getCount()));
+                String id = "";
+                ArrayList<String> deleteIDs = new ArrayList<>();
+                while (deleteCursor.moveToNext()) {
+                    id = deleteCursor.getString(deleteCursor.getColumnIndex(ContactsContract.DeletedContacts.CONTACT_ID));
+                    Log.d("Deleted-id", id);
+                    deleteIDs.add(id);
+                }
+                JSONArray delJsonArray = new JSONArray(deleteIDs);
+//                Log.d("deljson",delJsonArray.toString());
+                sendDeletedIDs(delJsonArray.toString(), ptr);
             }
-            JSONArray jsonArrayy = new JSONArray(deleteIDs);
             deleteCursor.close();
-            sendDeletedIDs(jsonArrayy.toString(), ptr);
         }
+
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP + " > ?",new String[] {String.valueOf(lastUpdatedTime)},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
         if (cursor.getCount()>0){
+            Log.d("count", String.valueOf(cursor.getCount()));
             while(cursor.moveToNext()){
                 @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                 @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
@@ -129,71 +130,19 @@ public class MainActivity extends QtActivity {
                 }
                 phoneCursor.close();
             }
-            cursor.close();
+//                    Log.d("json",jsonArray.toString());
+            sendUpdatedContacts(jsonArray.toString(), ptr, firstPass);
+            firstPass= false;
             lastUpdatedTime = System.currentTimeMillis();
 //                    Log.d("json",jsonArray.toString());
-            sendUpdatedContacts(jsonArray.toString(), ptr);
         }
+        cursor.close();
     }
-
-    public native void sendUpdatedContacts(String contacts, long ptr);
+    public native void sendUpdatedContacts(String contacts, long ptr, boolean firstPass);
     public native void sendDeletedIDs(String ids, long ptr);
 
-//    public void updateContacts(){
-//        sendUpdatedContacts();
-//        Toast.makeText(MainActivity.this, "Contacts Updated", Toast.LENGTH_SHORT).show();
-//    }
 
-    private void saveContacts() {
-        Log.d("save","called");
-        ArrayList<ContentProviderOperation> cpo = new ArrayList<>();
-        int rawContactId = cpo.size();
 
-        cpo.add(ContentProviderOperation.newInsert(
-                        ContactsContract.RawContacts.CONTENT_URI)
-                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
-                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
-                .build());
-
-        cpo.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                .withValueBackReference(ContactsContract.RawContacts.Data.RAW_CONTACT_ID, 0)
-                .withValue(ContactsContract.RawContacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-                .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, "firsttName")
-                .build());
-
-        cpo.add(ContentProviderOperation
-                .newInsert(ContactsContract.Data.CONTENT_URI)
-                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,0)
-                .withValue(ContactsContract.Data.MIMETYPE,
-                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, "+971")
-                .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
-                        ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
-                .build());
-        cpo.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                        .withValueBackReference(ContactsContract.RawContacts.Data.RAW_CONTACT_ID, rawContactId)
-                        .withValue(ContactsContract.RawContacts.Data.MIMETYPE,ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER,"+06")
-                        .withValue(ContactsContract. CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_HOME)
-                        .build());
-        try {
-            ContentProviderResult[] results = getContentResolver().applyBatch(ContactsContract.AUTHORITY, cpo);
-
-            Log.d("saved", "saveContact: Saved..."+results+cpo);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d("notsaved:", "saveContact: " + e.getMessage());
-            Toast.makeText(this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-    private boolean isWriteContactPermissionEnabled () {
-        boolean result = ContextCompat.checkSelfPermission
-                (this, Manifest.permission.WRITE_CONTACTS) ==(PackageManager.PERMISSION_GRANTED);
-        return result;
-    }
-        private void requestWriteContactPermission(){
-            ActivityCompat.requestPermissions ( this,contactPermission, 100);
-        }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -205,17 +154,7 @@ public class MainActivity extends QtActivity {
                 throw new RuntimeException(e);
             }
         }
-//        if (grantResults. length > 0) {
-//            if (requestCode == 100){
-//                boolean haveWriteContactPermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-//                if (haveWriteContactPermission) {
-//                    saveContacts();
-//                }
-//                else{
-//                    Toast.makeText (this,"Permission denied...", Toast. LENGTH_SHORT).show();
-//                }
-//            }
-//        }
+
         else{
             Toast.makeText(MainActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
             checkPermission();

@@ -7,43 +7,52 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
-extern "C" JNIEXPORT void JNICALL Java_com_example_appContacts_MainActivity_sendUpdatedContacts(JNIEnv *env, jobject obj,jstring jstr, jlong ptr) {
-    const char *cstr = env->GetStringUTFChars(jstr, nullptr);
-    QString contacts = QString::fromUtf8(cstr);
-    env->ReleaseStringUTFChars(jstr, cstr);
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(contacts.toUtf8());
-    QJsonArray jsonArray = jsonDoc.array();
+#include <QVectorIterator>
+extern "C" JNIEXPORT void JNICALL Java_com_example_appContacts_MainActivity_sendUpdatedContacts(JNIEnv *env, jobject obj,jstring jstr, jlong ptr, jboolean firstPass) {
     if(ptr!=0){
         ContactssModel* contactsModel = reinterpret_cast<ContactssModel*>(ptr);
-        foreach (const QJsonValue &value, jsonArray) {
+        foreach (const QJsonValue &value, contactsModel->convertToJsonArr(env,jstr)) {
             QString id = value["id"].toString();
             QString name = value["name"].toString();
             QString number = value["number"].toString();
-            Contacts c;
-            c.name=name; c.id=id; c.number=number;
-            contactsModel->updateItem(c);
+            Contacts contact;
+            contact.name=name; contact.id=id; contact.number=number;
+            if(firstPass){
+                contactsModel->appendItem(contact);
+            }else{
+                contactsModel->updateItem(contact);
+            }
         }
     }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_example_appContacts_MainActivity_sendDeletedIDs(JNIEnv *env, jobject obj,jstring jstr, jlong ptr) {
+
+    ContactssModel* contactsModel = reinterpret_cast<ContactssModel*>(ptr);
+    contactsModel->deleteContact(contactsModel->convertToJsonArr(env,jstr));
+
+}
+
+ContactssModel::ContactssModel(QObject *parent)
+    : QAbstractListModel(parent)
+{
+    QJniObject javaClass = QNativeInterface::QAndroidApplication::context();
+    jlong ptr = javaClass.callMethod<long>("setPointer","(J)J",(long)(ContactssModel *)this);
+    QJniObject permissions = javaClass.callObjectMethod("checkPermission","()Ljava/lang/String;");
+    if (permissions.toString()!="Permission Denied"){
+        qDebug()<<"Permission Granted";
+        javaClass.callMethod<void>("loadContacts","()V");
+    }
+}
+
+QJsonArray ContactssModel::convertToJsonArr(JNIEnv *env, jstring jstr)
+{
     const char *cstr = env->GetStringUTFChars(jstr, nullptr);
     QString contacts = QString::fromUtf8(cstr);
     env->ReleaseStringUTFChars(jstr, cstr);
     QJsonDocument jsonDoc = QJsonDocument::fromJson(contacts.toUtf8());
     QJsonArray jsonArray = jsonDoc.array();
-    ContactssModel* contactsModel = reinterpret_cast<ContactssModel*>(ptr);
-    foreach (const QJsonValue &value, jsonArray) {
-        contactsModel->deleteContact(value.toString());
-    }
-}
-ContactssModel::ContactssModel(QObject *parent)
-    : QAbstractListModel(parent)
-{
-//    this->checkContacts();
-    QJniObject javaClass = QNativeInterface::QAndroidApplication::context();
-    jlong ptr = javaClass.callMethod<long>("setPointer","(J)J",(long)(ContactssModel *)this);
-    javaClass.callMethod<void>("loadContacts","()V");
+    return jsonArray;
 }
 
 int ContactssModel::rowCount(const QModelIndex &parent) const
@@ -76,7 +85,6 @@ QVariant ContactssModel::data(const QModelIndex &index, int role) const
         return QVariant(contact.number);
     }
 
-
     return QVariant();
 }
 
@@ -97,7 +105,6 @@ void ContactssModel::setContacts(QVector<Contacts> contacts)
 bool ContactssModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (data(index, role) != value) {
-        // FIXME: Implement me!
         emit dataChanged(index, index, {role});
         return true;
     }
@@ -109,7 +116,7 @@ Qt::ItemFlags ContactssModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::NoItemFlags;
 
-    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable; // FIXME: Implement me!
+    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
 }
 
 QHash<int, QByteArray> ContactssModel::roleNames() const
@@ -144,34 +151,50 @@ void ContactssModel::checkContacts()
         }
     }
 }
-void ContactssModel::deleteContact(QString id)
+void ContactssModel::deleteContact(QJsonArray delIDJson)
 {
+
     beginResetModel();
-    for (int index=0; index<mContact.size();index++){
-        if (mContact.at(index).id==id){
-            beginRemoveRows(QModelIndex(), index, index);
-            mContact.removeAt(index);
-            endRemoveRows();
+    int size = delIDJson.size();
+    int i=0;
+    while(i<size && size!=0){
+        jboolean found = false;
+        for (int index=0; index<mContact.size();index++){
+            if (mContact.at(index).id==delIDJson[i].toString()){
+                qDebug()<<"json"<<delIDJson[i].toString();
+                beginRemoveRows(QModelIndex(), index, index);
+                mContact.removeAt(index);
+                endRemoveRows();
+                i++;
+                found=true;
+            }
+            if(found){
+                break;
+            }
+        }
+        if(found==false){
+            break;
         }
     }
     endResetModel();
 }
 
-void ContactssModel::updateItem(Contacts c)
+void ContactssModel::updateItem(Contacts contact)
 {
     beginResetModel();
     jboolean found = false;
     for (int index=0; index<mContact.size();index++){
-        if (mContact.at(index).id==c.id){
-            mContact[index].name=c.name;
-            mContact[index].number=c.number;
-            setData(createIndex(index,0),c.name,nameRole);
-            setData(createIndex(index,0),c.number,numberRole);
+        if (mContact.at(index).id==contact.id){
+            mContact[index].name=contact.name;
+            mContact[index].number=contact.number;
+            setData(createIndex(index,0),contact.name,nameRole);
+            setData(createIndex(index,0),contact.number,numberRole);
             found=true;
+            break;
         }
     }
     if(!found){
-        this->appendItem(c);
+        this->appendItem(contact);
     }
     endResetModel();
 

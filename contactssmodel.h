@@ -2,6 +2,7 @@
 #define CONTACTSSMODEL_H
 
 #include <QAbstractListModel>
+#include <QJniObject>
 struct Contacts{
     QString name;
     QString number;
@@ -29,10 +30,10 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     virtual QHash<int, QByteArray> roleNames() const override;
-
+    QJsonArray convertToJsonArr(JNIEnv *env,jstring jstr);
     void appendItem(Contacts contact);
     void checkContacts();
-    void deleteContact(QString id);
+    void deleteContact(QJsonArray delIDJson);
     void updateItem(Contacts c);
 private:
     QVector<Contacts> mContact;

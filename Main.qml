@@ -27,7 +27,6 @@ Window {
             ListView{
                 anchors.fill: parent
                 id: listView
-                clip: true
                 interactive:false
                 model: ContactsModel {
                     id:contactsModel

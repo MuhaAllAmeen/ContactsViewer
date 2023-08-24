@@ -9,7 +9,7 @@ Rectangle{
                 id: nameIcon
 //                anchors{left:parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter}
                 anchors.leftMargin: 5
-                width: 50; height: 50; radius: 30; color: "#C8B6A6"
+                width: 50; height:50; radius: 30; color: "#C8B6A6"
                 Text{
                     id: nameFirstLetter
                     anchors.centerIn: parent; text: name[0]; color: "white"
@@ -30,8 +30,41 @@ Rectangle{
                 text: number; font.pixelSize:contactRect.state=="shrinked"?17:25
             }
             states:[
-                ExpandedState{},
-                ShrinkedState{}
+                State{
+                    name:"expanded"
+                    PropertyChanges{
+                           target:nameIcon
+                           height:90; width:90; radius:90; anchors.topMargin: 10
+                      }
+                    AnchorChanges{
+                        target: nameLabel
+                        anchors{bottom: numberLabel.top; horizontalCenter: contactRect.horizontalCenter }
+
+                    }
+                    AnchorChanges{
+                        target: numberLabel
+                        anchors{bottom: contactRect.bottom; horizontalCenter: contactRect.horizontalCenter}
+                    }
+                    AnchorChanges{
+                        target:nameIcon
+                        anchors{top:contactRect.top; horizontalCenter: contactRect.horizontalCenter}
+                    }
+                },
+                State{
+                    name:"shrinked"
+                    AnchorChanges{
+                        target: nameIcon
+                        anchors{left:contactRect.left; verticalCenter: contactRect.verticalCenter}
+                    }
+                    AnchorChanges{
+                        target: nameLabel
+                        anchors{left:nameIcon.right; verticalCenter: contactRect.verticalCenter;}
+                    }
+                    AnchorChanges{
+                        target:numberLabel
+                        anchors{right: contactRect.right; verticalCenter: contactRect.verticalCenter;}
+                    }
+                }
                     ]
             transitions: [
                 Transition {
