@@ -31,12 +31,13 @@ public:
 
     virtual QHash<int, QByteArray> roleNames() const override;
     QJsonArray convertToJsonArr(JNIEnv *env,jstring jstr);
-    void appendItem(Contacts contact);
+    void appendItem(/*Contacts contact*/QStringList nameNumList, int index);
     void checkContacts();
     void deleteContact(QJsonArray delIDJson);
-    void updateItem(Contacts c);
+    void updateItem(QStringList nameNumList, int index);
 private:
     QVector<Contacts> mContact;
+    QMap<int,QStringList> contactsMap;
 
 };
 

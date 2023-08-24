@@ -5,9 +5,6 @@ import org.json.JSONObject;
 import org.qtproject.qt.android.bindings.QtActivity;
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
-import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -47,6 +44,7 @@ class MyObserver extends ContentObserver {
 public class MainActivity extends QtActivity {
     long ptr;
     long lastUpdatedTime=0;
+    long lastDeletedTime = 0;
     boolean firstPass=true;
     JSONArray jsonArray;
     String[] contactPermission;
@@ -86,8 +84,8 @@ public class MainActivity extends QtActivity {
     @SuppressLint("Range")
     public void loadContacts() throws InterruptedException {
         jsonArray = new JSONArray();
-        if(lastUpdatedTime!=0) {
-            Cursor deleteCursor = getContentResolver().query(ContactsContract.DeletedContacts.CONTENT_URI, new String[]{ContactsContract.DeletedContacts.CONTACT_ID}, ContactsContract.DeletedContacts.CONTACT_DELETED_TIMESTAMP + " > ?", new String[]{String.valueOf(lastUpdatedTime)}, null);
+        if(!firstPass) {
+            Cursor deleteCursor = getContentResolver().query(ContactsContract.DeletedContacts.CONTENT_URI, new String[]{ContactsContract.DeletedContacts.CONTACT_ID}, ContactsContract.DeletedContacts.CONTACT_DELETED_TIMESTAMP + " > ?", new String[]{String.valueOf(lastDeletedTime)}, null);
 
             if (deleteCursor.getCount() > 0) {
                 Log.d("delcount", String.valueOf(deleteCursor.getCount()));
@@ -99,11 +97,12 @@ public class MainActivity extends QtActivity {
                     deleteIDs.add(id);
                 }
                 JSONArray delJsonArray = new JSONArray(deleteIDs);
-//                Log.d("deljson",delJsonArray.toString());
+                Log.d("deljson",delJsonArray.toString());
                 sendDeletedIDs(delJsonArray.toString(), ptr);
             }
             deleteCursor.close();
         }
+        lastDeletedTime= System.currentTimeMillis();
 
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP + " > ?",new String[] {String.valueOf(lastUpdatedTime)},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
         if (cursor.getCount()>0){

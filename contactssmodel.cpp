@@ -10,17 +10,22 @@
 #include <QVectorIterator>
 extern "C" JNIEXPORT void JNICALL Java_com_example_appContacts_MainActivity_sendUpdatedContacts(JNIEnv *env, jobject obj,jstring jstr, jlong ptr, jboolean firstPass) {
     if(ptr!=0){
+        int i=0;
         ContactssModel* contactsModel = reinterpret_cast<ContactssModel*>(ptr);
         foreach (const QJsonValue &value, contactsModel->convertToJsonArr(env,jstr)) {
             QString id = value["id"].toString();
             QString name = value["name"].toString();
             QString number = value["number"].toString();
             Contacts contact;
+
+            QStringList qcontact = {id,name,number};
             contact.name=name; contact.id=id; contact.number=number;
             if(firstPass){
-                contactsModel->appendItem(contact);
+                contactsModel->appendItem(/*contact*/qcontact,i);
+                i++;
             }else{
-                contactsModel->updateItem(contact);
+                contactsModel->updateItem(qcontact,i);
+                i++;
             }
         }
     }
@@ -61,14 +66,15 @@ int ContactssModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return mContact.size();
+    return contactsMap.size();
 }
 
 
-void ContactssModel::appendItem(Contacts c){
-    const int index = mContact.size();
+void ContactssModel::appendItem(QStringList nameNumList, int i){
+    const int index = contactsMap.size();
+    qDebug()<<"size"<<contactsMap.size();
     beginInsertRows(QModelIndex(), index, index);
-    mContact.append(c);
+    contactsMap.insert(i,nameNumList);
     endInsertRows();
 }
 
@@ -77,12 +83,13 @@ QVariant ContactssModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const Contacts contact = mContact.at(index.row());
+//    const Contacts contact = mContact.at(index.row());
+    QStringList contactNameNumber = contactsMap[index.row()];
     switch(role){
     case nameRole:
-        return QVariant(contact.name);
+        return QVariant(/*contact.name*/contactNameNumber[1]);
     case numberRole:
-        return QVariant(contact.number);
+        return QVariant(/*contact.number*/contactNameNumber[2]);
     }
 
     return QVariant();
@@ -147,55 +154,66 @@ void ContactssModel::checkContacts()
             c.name=name;
             c.number=number;
             c.id=id;
-            this->appendItem(c);
+//            this->appendItem(c);
         }
     }
 }
 void ContactssModel::deleteContact(QJsonArray delIDJson)
 {
 
-    beginResetModel();
+//    beginResetModel();
     int size = delIDJson.size();
     int i=0;
     while(i<size && size!=0){
+        qDebug()<<"ss"<<size<<i;
         jboolean found = false;
-        for (int index=0; index<mContact.size();index++){
-            if (mContact.at(index).id==delIDJson[i].toString()){
+        for (int index=0; index<contactsMap.size()/*mContact.size()*/;index++){
+            qDebug()<<contactsMap.value(index).at(0);
+            if (/*mContact.at(index).id==delIDJson[i].toString()*/contactsMap.value(index).at(0)==delIDJson[i].toString()){
                 qDebug()<<"json"<<delIDJson[i].toString();
+                qDebug()<<size<<i;
+                qDebug()<<found;
                 beginRemoveRows(QModelIndex(), index, index);
-                mContact.removeAt(index);
+//                mContact.removeAt(index);
+//                contactsMap.remove(index);
+                contactsMap.take(index);
+                qDebug()<<"delsize2"<<contactsMap.count();
+                qDebug()<<"delsize"<<contactsMap.size();
                 endRemoveRows();
                 i++;
                 found=true;
             }
             if(found){
+                qDebug()<<"found"<<found;
                 break;
             }
         }
         if(found==false){
-            break;
+            qDebug()<<"found2"<<found;
+            i++;
         }
     }
-    endResetModel();
+//    endResetModel();
 }
 
-void ContactssModel::updateItem(Contacts contact)
+void ContactssModel::updateItem(QStringList nameNumList, int i)
 {
-    beginResetModel();
+//    beginResetModel();
     jboolean found = false;
     for (int index=0; index<mContact.size();index++){
-        if (mContact.at(index).id==contact.id){
-            mContact[index].name=contact.name;
-            mContact[index].number=contact.number;
-            setData(createIndex(index,0),contact.name,nameRole);
-            setData(createIndex(index,0),contact.number,numberRole);
+        if (/*mContact.at(index).id==contact.id*/contactsMap[index][0]==nameNumList[0]){
+//            mContact[index].name=contact.name;
+//            mContact[index].number=contact.number;
+            contactsMap[index]=nameNumList;
+            setData(createIndex(index,0),/*contact.name*/contactsMap[index][1],nameRole);
+            setData(createIndex(index,0),/*contact.number*/contactsMap[index][2],numberRole);
             found=true;
             break;
         }
     }
     if(!found){
-        this->appendItem(contact);
+        this->appendItem(/*contact*/nameNumList,i);
     }
-    endResetModel();
+//    endResetModel();
 
 }
