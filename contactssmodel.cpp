@@ -68,10 +68,11 @@ int ContactssModel::rowCount(const QModelIndex &parent) const
 
 void ContactssModel::appendItem(QMap<QString,QStringList> contact){
     const int index = mContact.size();
-    qDebug()<<"size"<<mContact.size();
     beginInsertRows(QModelIndex(), index, index);
     mContact.append(contact);
     endInsertRows();
+    qDebug()<<"size"<<mContact.size();
+
 }
 
 QVariant ContactssModel::data(const QModelIndex &index, int role) const
@@ -158,28 +159,6 @@ void ContactssModel::deleteContact(QJsonArray delIDJson)
     int size = delIDJson.size();
     int i=0;
     while(i<size && size!=0){
-//        qDebug()<<"ss"<<size<<i;
-//        jboolean found = false;
-//        for (int index=0; index<mContact.size();index++){
-//            if (mContact.at(index).keys().at(0)==delIDJson[i].toString()){
-//                qDebug()<<"json"<<delIDJson[i].toString();
-//                qDebug()<<size<<i;
-//                qDebug()<<found;
-//                beginRemoveRows(QModelIndex(), index, index);
-//                mContact.removeAt(index);
-//                endRemoveRows();
-//                i++;
-//                found=true;
-//            }
-//            if(found){
-//                qDebug()<<"found"<<found;
-//                break;
-//            }
-//        }
-//        if(found==false){
-//            qDebug()<<"found2"<<found;
-//            i++;
-//        }
         int index = findIndexofId(delIDJson[i].toString());
         if (index!=-1){
             qDebug()<<"json"<<delIDJson[i].toString();
@@ -191,27 +170,13 @@ void ContactssModel::deleteContact(QJsonArray delIDJson)
         }
         else{
             i++;
-            qDebug()<<"s"<<size<<i;       //watch the i
+            qDebug()<<"s"<<size<<i;
         }
     }
 }
 
 void ContactssModel::updateItem(QMap<QString,QStringList> contact)
 {
-//    jboolean found = false;
-//    for (int index=0; index<mContact.size();index++){
-//        if (mContact.at(index).keys().at(0)==contact.keys().at(0)){
-//            mContact[index]=contact;
-//            setData(createIndex(index,0),contact.values().at(0).at(0),nameRole);
-//            setData(createIndex(index,0),contact.values().at(0).at(1),numberRole);
-//            emit dataChanged(createIndex(index,0),createIndex(index,0),{nameRole,numberRole});
-//            found=true;
-//            break;
-//        }
-//    }
-//    if(!found){
-//        this->appendItem(contact);
-//    }
     int index = findIndexofId(contact.keys().at(0));
     if(index!=-1){
         mContact[index]=contact;
@@ -237,11 +202,12 @@ int ContactssModel::findIndexofId(QString id)
 
 void ContactssModel::deleteFromQml(int index)
 {
+
     beginRemoveRows(QModelIndex(), index, index);
-    mContact.removeAt(index);
-    endRemoveRows();
     int id = mContact.at(index).keys().at(0).toInt();
-    qDebug()<<"id"<<id;
     QJniObject javaClass = QNativeInterface::QAndroidApplication::context();
     javaClass.callMethod<void>("deleteContactbyID","(I)V",id);
+    mContact.removeAt(index);
+    endRemoveRows();
+
 }

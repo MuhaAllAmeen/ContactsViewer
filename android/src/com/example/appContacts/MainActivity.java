@@ -5,6 +5,9 @@ import org.json.JSONObject;
 import org.qtproject.qt.android.bindings.QtActivity;
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
+import android.content.OperationApplicationException;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -13,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
@@ -20,8 +24,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
 
 class MyObserver extends ContentObserver {
     public MyObserver(Handler handler,MainActivity main) {
@@ -97,7 +100,7 @@ public class MainActivity extends QtActivity {
                     deleteIDs.add(id);
                 }
                 JSONArray delJsonArray = new JSONArray(deleteIDs);
-                Log.d("deljson",delJsonArray.toString());
+                Log.d("deljson", delJsonArray.toString());
                 sendDeletedIDs(delJsonArray.toString(), ptr);
             }
             deleteCursor.close();
@@ -138,10 +141,31 @@ public class MainActivity extends QtActivity {
         cursor.close();
     }
     @SuppressLint("Range")
-    
+    void deleteContactbyID(int ID)  {
+        Log.d("tbdel","called");
+        String id = Integer.toString(ID);
+        final ArrayList ops = new ArrayList();
+        final ContentResolver cr = getContentResolver();
+        ops.add(ContentProviderOperation
+                .newDelete(ContactsContract.RawContacts.CONTENT_URI)
+                .withSelection(
+                        ContactsContract.RawContacts.CONTACT_ID
+                                + " = ?",
+                        new String[] { id })
+                .build());
+        try {
+            cr.applyBatch(ContactsContract.AUTHORITY, ops);
+        } catch (OperationApplicationException e) {
+            throw new RuntimeException(e);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        ops.clear();
+
+    }
+
     public native void sendUpdatedContacts(String contacts, long ptr, boolean firstPass);
     public native void sendDeletedIDs(String ids, long ptr);
-
 
 
 
@@ -161,5 +185,4 @@ public class MainActivity extends QtActivity {
             checkPermission();
         }
     }
-
 }

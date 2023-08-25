@@ -28,7 +28,8 @@ Window {
             id:contactsModel
         }
         spacing: 5
-        delegate: ListViewDelegate{
+        delegate:
+            ListViewDelegate{
             id: contactRectView
             DragHandler{
                 id:dragHandler
@@ -43,7 +44,6 @@ Window {
             Rectangle{
                 id:deleteBtn
                 height:contactRectView.state=="shrinked" ? 80 : 200; width:100; color:"red";
-                visible: true
                 radius: 5
                 anchors{left: contactRectView.right;}
                 Text{
@@ -56,6 +56,7 @@ Window {
                     }
                 }
             }
+
         }
 
     }
