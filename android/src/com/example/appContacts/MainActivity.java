@@ -137,6 +137,8 @@ public class MainActivity extends QtActivity {
         }
         cursor.close();
     }
+    @SuppressLint("Range")
+    
     public native void sendUpdatedContacts(String contacts, long ptr, boolean firstPass);
     public native void sendDeletedIDs(String ids, long ptr);
 

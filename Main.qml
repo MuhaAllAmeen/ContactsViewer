@@ -18,22 +18,46 @@ Window {
         }
     }
 
-    Flickable{
-            anchors{top: contactsHeading.bottom; topMargin: 20; bottom: parent.bottom; horizontalCenter: parent.horizontalCenter}
-            width: parent.width-10; height: parent.height-contactsHeading.height
-            contentHeight: listView.contentHeight
-            clip: true
-            interactive: true
-            ListView{
-                anchors.fill: parent
-                id: listView
-                interactive:false
-                model: ContactsModel {
-                    id:contactsModel
-                }
-                spacing: 5
-                delegate: ListViewDelegate{}
 
+    ListView{
+        id: listView
+        anchors{top: contactsHeading.bottom; topMargin: 20; bottom: parent.bottom; horizontalCenter: parent.horizontalCenter}
+        width: parent.width-10; height: parent.height-contactsHeading.height
+        clip: true
+        model: ContactsModel {
+            id:contactsModel
+        }
+        spacing: 5
+        delegate: ListViewDelegate{
+            id: contactRectView
+            DragHandler{
+                id:dragHandler
+                target: contactRectView
+                yAxis.enabled: false
+                acceptedDevices: PointerDevice.AllDevices
+                xAxis{
+                    maximum: 0
+                    minimum: -100
+                }
+            }
+            Rectangle{
+                id:deleteBtn
+                height:contactRectView.state=="shrinked" ? 80 : 200; width:100; color:"red";
+                visible: true
+                radius: 5
+                anchors{left: contactRectView.right;}
+                Text{
+                    anchors.centerIn: parent; text: "Delete"
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        contactsModel.deleteFromQml(index);
+                    }
+                }
             }
         }
+
+    }
+
 }

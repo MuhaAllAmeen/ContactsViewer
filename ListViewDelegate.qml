@@ -11,6 +11,7 @@ Rectangle{
                 anchors.leftMargin: 5
                 width: 50; height:50; radius: 30; color: "#C8B6A6"
                 Text{
+
                     id: nameFirstLetter
                     anchors.centerIn: parent; text: name[0]; color: "white"
                     font.pixelSize: contactRect.state=="shrinked"?20:40
@@ -29,6 +30,8 @@ Rectangle{
                 color:"#8D7B68"
                 text: number; font.pixelSize:contactRect.state=="shrinked"?17:25
             }
+
+
             states:[
                 State{
                     name:"expanded"
@@ -114,7 +117,9 @@ Rectangle{
                     contactRect.ListView.view.currentIndex = index
                     console.log(contactRect.ListView.view.currentIndex)
                     contactRect.state === "shrinked" ? contactRect.state="expanded":contactRect.state="shrinked"
+                    deleteBtn.visible=!deleteBtn.visible
                }
+
             }
 
         }
