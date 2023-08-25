@@ -141,8 +141,7 @@ public class MainActivity extends QtActivity {
         cursor.close();
     }
     @SuppressLint("Range")
-    void deleteContactbyID(int ID)  {
-        Log.d("tbdel","called");
+    boolean deleteContactbyID(int ID)  {
         String id = Integer.toString(ID);
         final ArrayList ops = new ArrayList();
         final ContentResolver cr = getContentResolver();
@@ -155,13 +154,13 @@ public class MainActivity extends QtActivity {
                 .build());
         try {
             cr.applyBatch(ContactsContract.AUTHORITY, ops);
+            ops.clear();
+            return true;
         } catch (OperationApplicationException e) {
             throw new RuntimeException(e);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
-        ops.clear();
-
     }
 
     public native void sendUpdatedContacts(String contacts, long ptr, boolean firstPass);

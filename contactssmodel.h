@@ -3,15 +3,11 @@
 
 #include <QAbstractListModel>
 #include <QJniObject>
-//struct Contacts{
-//    QString name;
-//    QString number;
-//    QString id;
-//};
+
 class ContactssModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QVector<QMap<QString,QStringList>> contacts READ getContacts WRITE setContacts)
+    Q_PROPERTY(QVector<QMap<QString,QVariant>> contacts READ getContacts WRITE setContacts)
 
 public:
     explicit ContactssModel(QObject *parent = nullptr);
@@ -21,8 +17,8 @@ public:
     };
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    QVector<QMap<QString,QStringList>> getContacts();
-    void setContacts(QVector<QMap<QString,QStringList>> contacts);
+    QVector<QMap<QString,QVariant>> getContacts();
+    void setContacts(QVector<QMap<QString,QVariant>> contacts);
 
     bool setData(const QModelIndex &index, const QVariant &value,
                  int role = Qt::EditRole) override;
@@ -30,16 +26,16 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     virtual QHash<int, QByteArray> roleNames() const override;
-    QJsonArray convertToJsonArr(JNIEnv *env,jstring jstr);
-    void appendItem(QMap<QString,QStringList> contact);
+    /*QJsonArray*/QVariantList convertToJsonVar(JNIEnv *env,jstring jstr);
+    void appendItem(QMap <QString,QVariant> contact);
     void checkContacts();
-    void deleteContact(QJsonArray delIDJson);
-    void updateItem(QMap<QString,QStringList> contact);
+    void deleteContact(QVariantList delIDs);
+    void updateItem(QMap<QString,QVariant> contact);
     int findIndexofId(QString id);
 public slots:
     void deleteFromQml(int index);
 private:
-    QVector<QMap<QString,QStringList>> mContact;
+    QVector<QMap<QString,QVariant>> mContact;
 
 };
 
