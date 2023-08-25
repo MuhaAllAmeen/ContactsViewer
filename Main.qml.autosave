@@ -28,12 +28,11 @@ Window {
             id:contactsModel
         }
         spacing: 5
-
         delegate:
+            
             ListViewDelegate{
             id: contactRectView
             DragHandler{
-                id:dragHandler
                 target: contactRectView
                 yAxis.enabled: false
                 acceptedDevices: PointerDevice.AllDevices
