@@ -117,7 +117,6 @@ Rectangle{
                     contactRect.ListView.view.currentIndex = index
                     console.log(contactRect.ListView.view.currentIndex)
                     contactRect.state === "shrinked" ? contactRect.state="expanded":contactRect.state="shrinked"
-                    deleteBtn.visible=!deleteBtn.visible
                }
 
             }

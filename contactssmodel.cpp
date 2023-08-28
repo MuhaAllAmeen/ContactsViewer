@@ -47,15 +47,9 @@ QVariantList ContactssModel::convertToJsonVar(JNIEnv *env, jstring jstr)
     QString contacts = QString::fromUtf8(cstr);
     env->ReleaseStringUTFChars(jstr, cstr);
     QJsonDocument jsonDoc = QJsonDocument::fromJson(contacts.toUtf8());
-    QJsonArray jsonArray = jsonDoc.array();
     QVariantList jsonVariant = jsonDoc.toVariant().value<QVariantList>();
-    foreach (QVariant value,jsonVariant){
-        qDebug()<<"vv"<<value.value<QVariantMap>();
-        foreach(QVariant value,value.value<QVariantMap>() ){
-            qDebug()<<"v"<<value;
-        }
-        }
-        return jsonVariant;
+
+    return jsonVariant;
 }
 
 int ContactssModel::rowCount(const QModelIndex &parent) const
