@@ -14,7 +14,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_example_appContacts_MainActivity_send
         ContactssModel* contactsModel = reinterpret_cast<ContactssModel*>(ptr);
         foreach (const QVariant value, contactsModel->convertToJsonVar(env,jstr)) {
             if(firstPass){
-                 contactsModel->appendItem(value.value<QVariantMap>());
+
+                contactsModel->appendItem(value.value<QVariantMap>());
             }else{
                 contactsModel->updateItem(value.value<QVariantMap>());
             }
@@ -48,7 +49,6 @@ QVariantList ContactssModel::convertToJsonVar(JNIEnv *env, jstring jstr)
     env->ReleaseStringUTFChars(jstr, cstr);
     QJsonDocument jsonDoc = QJsonDocument::fromJson(contacts.toUtf8());
     QVariantList jsonVariant = jsonDoc.toVariant().value<QVariantList>();
-
     return jsonVariant;
 }
 
@@ -129,23 +129,25 @@ QHash<int, QByteArray> ContactssModel::roleNames() const
 void ContactssModel::deleteContact(QVariantList delIDs)
 {
     int size = delIDs.size();
-    int i=0;
-    while(i<size && size!=0){
-        qDebug()<<delIDs[i];
-        int index = findIndexofId(delIDs[i].toString());
-        if (index!=-1){
-            qDebug()<<"json"<<delIDs[i].toString();
-            qDebug()<<size<<i;
-            beginRemoveRows(QModelIndex(), index, index);
-            mContact.removeAt(index);
-            endRemoveRows();
-            i++;
+//    int i=0;
+//    while(i<size && size!=0){
+        for (int i=0; i<size; i++){
+            qDebug()<<delIDs[i];
+            int index = findIndexofId(delIDs[i].toString());
+            if (index!=-1 && size!=0){
+                qDebug()<<"json"<<delIDs[i].toString();
+                qDebug()<<size<<i;
+                beginRemoveRows(QModelIndex(), index, index);
+                mContact.removeAt(index);
+                endRemoveRows();
+//                i++;
+            }
+            else{
+//                i++;
+                qDebug()<<"s"<<size<<i;
+            }
         }
-        else{
-            i++;
-            qDebug()<<"s"<<size<<i;
-        }
-    }
+//    }
 }
 
 void ContactssModel::updateItem(QMap<QString,QVariant> contact)
@@ -182,6 +184,9 @@ void ContactssModel::deleteFromQml(int index)
         beginRemoveRows(QModelIndex(), index, index);
         mContact.removeAt(index);
         endRemoveRows();
+    }
+    else{
+        javaClass.callMethod<void>("contactNotfound","()V");
     }
 
 }

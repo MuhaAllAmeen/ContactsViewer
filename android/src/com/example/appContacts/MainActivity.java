@@ -157,11 +157,16 @@ public class MainActivity extends QtActivity {
             ops.clear();
             return true;
         } catch (OperationApplicationException e) {
-            throw new RuntimeException(e);
+            return false;
+//            throw new RuntimeException(e);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
     }
+    public void contactNotfound(){
+        Toast.makeText(MainActivity.this, "Contact Not Found", Toast.LENGTH_SHORT).show();
+    }
+
 
     public native void sendUpdatedContacts(String contacts, long ptr, boolean firstPass);
     public native void sendDeletedIDs(String ids, long ptr);
